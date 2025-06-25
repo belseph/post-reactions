@@ -1,4 +1,4 @@
-// src/main/java/com/skill/websockets/dto/PostDTO.java (OPTIMIZADO)
+// src/main/java/com/skill/websockets/dto/PostDTO.java (ACTUALIZADO CON TÍTULO)
 package com.skill.websockets.dto;
 
 import lombok.Data;
@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class PostDTO {
     private String id;
     private UserDTO author;
+    private String title; // ✅ NUEVO: Campo título
     private String content;
     private List<String> tags;
     private LocalDateTime createdAt;
@@ -39,6 +40,7 @@ public class PostDTO {
         if (post != null) {
             this.id = post.getId() != null ? post.getId().toString() : null;
             this.author = new UserDTO(post.getUser());
+            this.title = post.getTitulo(); // ✅ NUEVO: Mapear título
             this.content = post.getContenido();
             this.createdAt = post.getFechaPublicacion();
 

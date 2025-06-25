@@ -5,19 +5,20 @@ import PostContent from './PostContent';
 import PostActions from './PostActions';
 import ReactionStats from '../reaction/ReactionStats';
 import CommentSection from '../comment/CommentSection';
+import { getPostImage } from '../../utils/imageUtils';
 
 interface PostCardProps {
   post: Post;
   onReaction: (postId: string, reactionType: string) => void;
   onCommentReaction?: (commentId: string, reactionType: string) => void;
-  onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>; // ✅ NUEVO
+  onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ 
   post, 
   onReaction, 
   onCommentReaction,
-  onNewComment // ✅ NUEVO
+  onNewComment
 }) => {
   const [showComments, setShowComments] = useState(false);
 
@@ -33,14 +34,18 @@ const PostCard: React.FC<PostCardProps> = ({
   });
 
   return (
-    <article className="bg-white rounded-2xl shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 overflow-hidden">
+    <article className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/15 transition-all duration-300 overflow-hidden shadow-lg">
       <PostHeader
         author={post.author}
         tags={post.tags}
         createdAt={post.createdAt}
       />
 
-      <PostContent content={post.content} />
+      <PostContent 
+        title={post.title}
+        content={post.content} 
+        image={getPostImage(post.id)}
+      />
 
       <ReactionStats
         reactions={post.reactions}
@@ -60,7 +65,7 @@ const PostCard: React.FC<PostCardProps> = ({
           comments={post.comments} 
           postId={post.id}
           onCommentReaction={onCommentReaction}
-          onNewComment={onNewComment} // ✅ PASAR FUNCIÓN
+          onNewComment={onNewComment}
           forceRenderKey={post._lastUpdate}
         />
       )}

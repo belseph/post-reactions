@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import com.fasterxml.jackson.annotation.JsonIgnore; // <-- IMPORTANTE: Añade esta línea
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -27,7 +27,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
-    @JsonIgnore // <-- Añade esta anotación
+    @JsonIgnore
     private User user;
 
     @Column(nullable = false)
@@ -48,11 +48,11 @@ public class Post {
             joinColumns = @JoinColumn(name = "id_post"),
             inverseJoinColumns = @JoinColumn(name = "id_etiqueta")
     )
-    @JsonIgnore // <-- Añade esta anotación (si no necesitas las tags en la respuesta del Post)
+    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // <-- Añade esta anotación
+    @JsonIgnore
     private Set<Comment> comments = new HashSet<>();
 
     public void addTag(Tag tag) {

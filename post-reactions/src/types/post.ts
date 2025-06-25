@@ -14,13 +14,14 @@ export interface Comment {
   reactions: Record<string, number>;
   userReaction?: string | null;
   replies?: Comment[];
-  postId?: string; // ✅ NUEVO: Para identificar a qué post pertenece
-  parentCommentId?: string; // ✅ NUEVO: Para respuestas
+  postId?: string;
+  parentCommentId?: string;
 }
 
 export interface Post {
   id: string;
   author: User;
+  title: string; // ✅ NUEVO: Campo título
   content: string;
   tags: string[];
   createdAt: Date;

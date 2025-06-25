@@ -10,6 +10,7 @@ interface CreatePostModalProps {
 }
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
+  const [title, setTitle] = useState(''); // ✅ NUEVO: Estado para el título
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [postType, setPostType] = useState<'normal' | 'mentoria' | 'colaboracion'>('normal');
@@ -24,14 +25,15 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim() && selectedTags.length > 0) {
-      console.log('Crear post:', { content, selectedTags, postType });
+    if (title.trim() && content.trim() && selectedTags.length > 0) { // ✅ ACTUALIZADO: Validar título
+      console.log('Crear post:', { title, content, selectedTags, postType }); // ✅ ACTUALIZADO: Incluir título
       onClose();
     }
   };
 
   const getCharacterCount = () => content.length;
   const maxCharacters = 2000;
+  const maxTitleCharacters = 100; // ✅ NUEVO: Límite para el título
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -109,17 +111,46 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
               </div>
             </div>
 
+            {/* ✅ NUEVO: Title Input */}
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
+                Título del post
+              </label>
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Escribe un título llamativo para tu post..."
+                className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-slate-500 text-lg font-medium"
+                maxLength={maxTitleCharacters}
+                required
+              />
+              <div className="flex justify-end mt-1">
+                <span className={`text-xs ${
+                  title.length > maxTitleCharacters * 0.9 ? 'text-red-500' : 'text-slate-500'
+                }`}>
+                  {title.length}/{maxTitleCharacters}
+                </span>
+              </div>
+            </div>
+
             {/* Content Input */}
             <div className="mb-6">
+              <label htmlFor="content" className="block text-sm font-semibold text-slate-700 mb-2">
+                Contenido
+              </label>
               <textarea
+                id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={`¿Qué quieres compartir${
                   postType === 'mentoria' ? ' sobre tu mentoría' : 
                   postType === 'colaboracion' ? ' sobre tu proyecto' : ''
                 }?`}
-                className="w-full h-40 p-4 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-slate-500 text-lg"
+                className="w-full h-40 p-4 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-slate-500"
                 maxLength={maxCharacters}
+                required
               />
               <div className="flex justify-between items-center mt-2">
                 <div className="flex items-center space-x-4 text-slate-400">
@@ -134,7 +165,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
               </div>
             </div>
 
-            {/* ✅ ACTUALIZADO: Tags Selection usando AVAILABLE_TAGS */}
+            {/* Tags Selection */}
             <div className="mb-6">
               <h3 className="text-sm font-semibold text-slate-700 mb-3">
                 Etiquetas (selecciona al menos una)
@@ -150,12 +181,11 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
-                    title={tag.description} // ✅ NUEVO: Tooltip con descripción
+                    title={tag.description}
                   >
                     <Badge variant={tag.id} className="mb-1">
                       #{tag.shortLabel || tag.label}
                     </Badge>
-                    {/* ✅ NUEVO: Mostrar descripción en texto pequeño */}
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2">
                       {tag.description}
                     </p>
@@ -165,7 +195,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
             </div>
 
             {/* Preview */}
-            {(content.trim() || selectedTags.length > 0) && (
+            {(title.trim() || content.trim() || selectedTags.length > 0) && (
               <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">Vista previa</h3>
                 <div className="bg-white rounded-lg p-4 border border-slate-100">
@@ -190,6 +220,13 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
                       ))}
                     </div>
                   )}
+
+                  {/* ✅ NUEVO: Preview del título */}
+                  {title.trim() && (
+                    <h2 className="text-lg font-bold text-slate-900 mb-2">
+                      {title}
+                    </h2>
+                  )}
                   
                   <p className="text-sm text-slate-800 whitespace-pre-wrap">
                     {content || 'Tu contenido aparecerá aquí...'}
@@ -203,12 +240,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
           <div className="p-6 border-t border-slate-200 bg-slate-50">
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-600">
-                {selectedTags.length === 0 && (
-                  <span className="text-red-500">Selecciona al menos una etiqueta</span>
+                {(selectedTags.length === 0 || !title.trim()) && (
+                  <span className="text-red-500">
+                    {!title.trim() ? 'Escribe un título' : 'Selecciona al menos una etiqueta'}
+                  </span>
                 )}
-                {selectedTags.length > 0 && (
+                {selectedTags.length > 0 && title.trim() && (
                   <span className="text-green-600">
-                    ✓ {selectedTags.length} etiqueta{selectedTags.length > 1 ? 's' : ''} seleccionada{selectedTags.length > 1 ? 's' : ''}
+                    ✓ Listo para publicar
                   </span>
                 )}
               </div>
@@ -222,9 +261,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!content.trim() || selectedTags.length === 0}
+                  disabled={!title.trim() || !content.trim() || selectedTags.length === 0} // ✅ ACTUALIZADO: Validar título
                   className={`${
-                    content.trim() && selectedTags.length > 0
+                    title.trim() && content.trim() && selectedTags.length > 0
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
                       : ''
                   }`}
