@@ -32,6 +32,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     }
   };
 
+  // ✅ NUEVO: Handlers para editar y eliminar comentarios
+  const handleEditComment = (commentId: string) => {
+    console.log('Editar comentario:', commentId);
+    // Aquí puedes implementar la lógica de edición
+  };
+
+  const handleDeleteComment = (commentId: string) => {
+    console.log('Eliminar comentario:', commentId);
+    // Aquí puedes implementar la lógica de eliminación
+  };
+
   console.log(`🔄 Renderizando CommentSection para post ${postId}:`, {
     commentsCount: comments.length,
     forceRenderKey,
@@ -39,8 +50,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   });
 
   return (
-    <div className="border-t border-white/20 bg-white/5 backdrop-blur-sm rounded-b-xl hover:bg-white/8 transition-all duration-300">
-      {/* ✅ ARREGLADO: Comments List con hover más sutil */}
+    <div className="border-t border-white/20 bg-white/5 backdrop-blur-sm rounded-b-xl hover:bg-white/2 transition-all duration-300">
+      {/* Comments List */}
       {comments.length > 0 && (
         <div className="px-6 py-4 space-y-4">
           {comments.map((comment) => (
@@ -49,6 +60,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               comment={comment}
               onReaction={onCommentReaction}
               onNewComment={onNewComment}
+              onEdit={handleEditComment} // ✅ NUEVO: Pasar función de editar
+              onDelete={handleDeleteComment} // ✅ NUEVO: Pasar función de eliminar
               forceRenderKey={forceRenderKey}
             />
           ))}

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Comment } from '../../types/post';
 import Avatar from '../ui/Avatar';
 import ReactionButton from '../reaction/ReactionButton';
 import Button from '../ui/Button';
 import CommentForm from './CommentForm';
-import { Reply, MoreHorizontal } from 'lucide-react';
+import { Reply, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 
 interface CommentCardProps {
   comment: Comment;
@@ -12,6 +12,8 @@ interface CommentCardProps {
   onReaction?: (commentId: string, reactionType: string) => void;
   onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
   forceRenderKey?: number;
+  onEdit?: (commentId: string) => void;
+  onDelete?: (commentId: string) => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({ 
@@ -19,10 +21,14 @@ const CommentCard: React.FC<CommentCardProps> = ({
   isReply = false, 
   onReaction,
   onNewComment,
-  forceRenderKey
+  forceRenderKey,
+  onEdit,
+  onDelete
 }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
@@ -33,6 +39,20 @@ const CommentCard: React.FC<CommentCardProps> = ({
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
     return `${Math.floor(diffInMinutes / 1440)}d`;
   };
+
+  // ✅ NUEVO: Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleReaction = (reactionType: string) => {
     console.log('🎯 Reacción a comentario:', comment.id, reactionType, 'forceRenderKey:', forceRenderKey);
@@ -53,6 +73,25 @@ const CommentCard: React.FC<CommentCardProps> = ({
       } catch (error) {
         console.error('❌ Error al enviar respuesta:', error);
       }
+    }
+  };
+
+  // ✅ NUEVO: Handlers para editar y eliminar
+  const handleEdit = () => {
+    setShowMenu(false);
+    if (onEdit) {
+      onEdit(comment.id);
+    } else {
+      console.log('Editar comentario:', comment.id);
+    }
+  };
+
+  const handleDelete = () => {
+    setShowMenu(false);
+    if (onDelete) {
+      onDelete(comment.id);
+    } else {
+      console.log('Eliminar comentario:', comment.id);
     }
   };
 
@@ -83,12 +122,38 @@ const CommentCard: React.FC<CommentCardProps> = ({
               
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-white/60">{formatTimeAgo(comment.createdAt)}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={MoreHorizontal}
-                  className="text-white/60 hover:text-white/80 opacity-0 group-hover:opacity-100 transition-opacity p-1"
-                />
+                
+                {/* ✅ ARREGLADO: Menú desplegable con el mismo estilo que el post */}
+                <div className="relative" ref={menuRef}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={MoreHorizontal}
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="text-white/60 hover:text-white/80 hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-full"
+                  />
+
+                  {/* ✅ NUEVO: Dropdown Menu igual que en PostHeader */}
+                  {showMenu && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                      <button
+                        onClick={handleEdit}
+                        className="w-full flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span className="text-sm font-medium">Editar comentario</span>
+                      </button>
+                      
+                      <button
+                        onClick={handleDelete}
+                        className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="text-sm font-medium">Eliminar comentario</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -109,7 +174,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 size="sm"
                 onClick={() => setShowReplyForm(!showReplyForm)}
                 icon={Reply}
-                className="text-white/70 hover:text-purple-300 hover:bg-purple-500/10 transition-colors font-medium px-2 py-1 rounded-lg"
+                className="text-white/70 hover:text-white/90 hover:bg-white/10 transition-colors font-medium px-2 py-1 rounded-lg"
               >
                 Responder
               </Button>
@@ -135,7 +200,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowReplies(true)}
-                  className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 text-sm font-medium px-2 py-1 rounded-lg"
+                  className="text-white/80 hover:text-white hover:bg-white/10 text-sm font-medium px-2 py-1 rounded-lg"
                 >
                   Ver {comment.replies.length} respuesta{comment.replies.length > 1 ? 's' : ''}
                 </Button>
@@ -156,6 +221,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
                       isReply={true}
                       onReaction={onReaction}
                       onNewComment={onNewComment}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
                       forceRenderKey={forceRenderKey}
                     />
                   ))}

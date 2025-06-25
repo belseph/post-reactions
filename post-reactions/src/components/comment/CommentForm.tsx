@@ -44,7 +44,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
         />
         
         <div className="flex-1 relative">
-          {/* ✅ ARREGLADO: Hover más sutil para el textarea */}
+          {/* ✅ ARREGLADO: Hover más sutil y coherente */}
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
