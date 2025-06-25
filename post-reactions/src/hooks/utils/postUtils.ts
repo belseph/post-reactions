@@ -1,13 +1,39 @@
-// src/hooks/utils/postUtils.ts
+// src/hooks/utils/postUtils.ts - ARREGLADO: Parsing de fechas más robusto
 import type { Post, Comment, NotificationReaction } from '../../types/post';
 
 /**
- * Parsea fechas en posts
+ * ✅ ARREGLADO: Función helper para convertir fechas de forma segura
+ */
+const parseDate = (dateValue: any): Date => {
+  if (!dateValue) {
+    return new Date(); // Fecha actual como fallback
+  }
+  
+  if (dateValue instanceof Date) {
+    return dateValue; // Ya es un Date
+  }
+  
+  if (typeof dateValue === 'string' || typeof dateValue === 'number') {
+    const parsed = new Date(dateValue);
+    // Verificar si la fecha es válida
+    if (isNaN(parsed.getTime())) {
+      console.warn('Fecha inválida recibida:', dateValue, 'usando fecha actual');
+      return new Date();
+    }
+    return parsed;
+  }
+  
+  console.warn('Tipo de fecha desconocido:', typeof dateValue, dateValue, 'usando fecha actual');
+  return new Date();
+};
+
+/**
+ * ✅ ARREGLADO: Parsea fechas en posts de forma más robusta
  */
 export const parsePostDates = (post: any): Post => {
   return {
     ...post,
-    createdAt: new Date(post.createdAt),
+    createdAt: parseDate(post.createdAt),
     reactions: post.reactions || {},
     userReaction: post.userReaction || null,
     comments: post.comments?.map((comment: any) => parseCommentDates(comment)) || []
@@ -15,12 +41,12 @@ export const parsePostDates = (post: any): Post => {
 };
 
 /**
- * Parsea fechas en comentarios
+ * ✅ ARREGLADO: Parsea fechas en comentarios de forma más robusta
  */
 export const parseCommentDates = (comment: any): Comment => {
   return {
     ...comment,
-    createdAt: new Date(comment.createdAt),
+    createdAt: parseDate(comment.createdAt),
     reactions: comment.reactions || {},
     userReaction: comment.userReaction || null,
     replies: comment.replies?.map((reply: any) => parseCommentDates(reply)) || []
@@ -73,14 +99,20 @@ export const updateCommentReactionsRecursive = (
 };
 
 /**
- * Agrega comentario a posts
+ * ✅ ARREGLADO: Agrega comentario a posts con parsing de fechas
  */
 export const addCommentToPosts = (posts: Post[], newComment: Comment): Post[] => {
   return posts.map(post => {
     if ((newComment as any).postId === post.id) {
+      // ✅ ASEGURAR que el comentario tenga fecha parseada
+      const commentWithParsedDate = {
+        ...newComment,
+        createdAt: parseDate(newComment.createdAt)
+      };
+      
       return {
         ...post,
-        comments: [...post.comments, newComment]
+        comments: [...post.comments, commentWithParsedDate]
       };
     }
     return post;

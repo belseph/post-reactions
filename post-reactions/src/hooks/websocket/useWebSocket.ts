@@ -7,8 +7,8 @@ interface UseWebSocketOptions {
   onReactionChange: (notification: NotificationReaction) => void;
   onCommentUpdate?: (comment: Comment) => void;
   onCommentDelete?: (commentId: string) => void;
-  onPostUpdate?: (post: Post) => void; // ✅ NUEVO: Para posts editados
-  onPostDelete?: (postId: string) => void; // ✅ NUEVO: Para posts eliminados
+  onPostUpdate?: (post: Post) => void;
+  onPostDelete?: (postId: string) => void;
 }
 
 export const useWebSocket = ({ 
@@ -16,10 +16,23 @@ export const useWebSocket = ({
   onReactionChange, 
   onCommentUpdate, 
   onCommentDelete,
-  onPostUpdate, // ✅ NUEVO
-  onPostDelete  // ✅ NUEVO
+  onPostUpdate,
+  onPostDelete
 }: UseWebSocketOptions) => {
   const clientRef = useRef<Client | null>(null);
+
+  // ✅ NUEVO: Función helper para parsear fechas de forma segura
+  const parseDate = (dateValue: any): Date => {
+    if (!dateValue) return new Date();
+    if (dateValue instanceof Date) return dateValue;
+    
+    const parsed = new Date(dateValue);
+    if (isNaN(parsed.getTime())) {
+      console.warn('Fecha inválida en WebSocket:', dateValue);
+      return new Date();
+    }
+    return parsed;
+  };
 
   useEffect(() => {
     const client = new Client({
@@ -36,6 +49,8 @@ export const useWebSocket = ({
           console.log('Nueva notificación de comentario RAW:', message.body);
           try {
             const newComment: Comment = JSON.parse(message.body);
+            // ✅ ARREGLADO: Asegurar que la fecha esté parseada
+            newComment.createdAt = parseDate(newComment.createdAt);
             onNewComment(newComment);
           } catch (e) {
             console.error('Error parseando notificación de comentario:', e, message.body);
@@ -48,6 +63,8 @@ export const useWebSocket = ({
             console.log('Comentario actualizado RAW:', message.body);
             try {
               const updatedComment: Comment = JSON.parse(message.body);
+              // ✅ ARREGLADO: Asegurar que la fecha esté parseada
+              updatedComment.createdAt = parseDate(updatedComment.createdAt);
               onCommentUpdate(updatedComment);
             } catch (e) {
               console.error('Error parseando comentario actualizado:', e, message.body);
@@ -60,7 +77,7 @@ export const useWebSocket = ({
           client.subscribe('/topic/comments/deleted', message => {
             console.log('Comentario eliminado RAW:', message.body);
             try {
-              const deletedCommentId: string = message.body.replace(/"/g, ''); // Remover comillas si las hay
+              const deletedCommentId: string = message.body.replace(/"/g, '');
               onCommentDelete(deletedCommentId);
             } catch (e) {
               console.error('Error parseando comentario eliminado:', e, message.body);
@@ -68,12 +85,14 @@ export const useWebSocket = ({
           });
         }
 
-        // ✅ NUEVO: Suscripción a posts editados
+        // Suscripción a posts editados
         if (onPostUpdate) {
           client.subscribe('/topic/posts/updated', message => {
             console.log('Post actualizado RAW:', message.body);
             try {
               const updatedPost: Post = JSON.parse(message.body);
+              // ✅ ARREGLADO: Asegurar que la fecha esté parseada
+              updatedPost.createdAt = parseDate(updatedPost.createdAt);
               onPostUpdate(updatedPost);
             } catch (e) {
               console.error('Error parseando post actualizado:', e, message.body);
@@ -81,12 +100,12 @@ export const useWebSocket = ({
           });
         }
 
-        // ✅ NUEVO: Suscripción a posts eliminados
+        // Suscripción a posts eliminados
         if (onPostDelete) {
           client.subscribe('/topic/posts/deleted', message => {
             console.log('Post eliminado RAW:', message.body);
             try {
-              const deletedPostId: string = message.body.replace(/"/g, ''); // Remover comillas si las hay
+              const deletedPostId: string = message.body.replace(/"/g, '');
               onPostDelete(deletedPostId);
             } catch (e) {
               console.error('Error parseando post eliminado:', e, message.body);

@@ -10,7 +10,7 @@ interface PostHeaderProps {
   author: User;
   tags: string[];
   createdAt: Date;
-  postId: string; // ✅ NUEVO: ID del post
+  postId: string;
   currentUserId?: string | null;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -20,23 +20,44 @@ const PostHeader: React.FC<PostHeaderProps> = ({
   author, 
   tags, 
   createdAt,
-  postId, // ✅ NUEVO: Recibir postId
+  postId,
   currentUserId,
   onEdit, 
   onDelete 
 }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // ✅ NUEVO: Confirmación de eliminación
-  const [isDeleting, setIsDeleting] = useState(false); // ✅ NUEVO: Estado de eliminación
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Hace unos minutos';
-    if (diffInHours < 24) return `Hace ${diffInHours}h`;
-    return `Hace ${Math.floor(diffInHours / 24)}d`;
+  // ✅ ARREGLADO: Función más robusta para formatear tiempo
+  const formatTimeAgo = (date: Date | string | number) => {
+    try {
+      // ✅ ASEGURAR que tenemos un objeto Date válido
+      let dateObj: Date;
+      
+      if (date instanceof Date) {
+        dateObj = date;
+      } else {
+        dateObj = new Date(date);
+      }
+      
+      // ✅ VERIFICAR que la fecha es válida
+      if (isNaN(dateObj.getTime())) {
+        console.warn('Fecha inválida en PostHeader:', date);
+        return 'Fecha inválida';
+      }
+      
+      const now = new Date();
+      const diffInHours = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60));
+      
+      if (diffInHours < 1) return 'Hace unos minutos';
+      if (diffInHours < 24) return `Hace ${diffInHours}h`;
+      return `Hace ${Math.floor(diffInHours / 24)}d`;
+    } catch (error) {
+      console.error('Error al formatear fecha en PostHeader:', error, 'Fecha recibida:', date);
+      return 'Fecha inválida';
+    }
   };
 
   useEffect(() => {
@@ -61,20 +82,17 @@ const PostHeader: React.FC<PostHeaderProps> = ({
     }
   };
 
-  // ✅ NUEVO: Función para mostrar confirmación de eliminación
   const handleDelete = () => {
     setShowMenu(false);
     setShowDeleteConfirm(true);
   };
 
-  // ✅ NUEVO: Función para confirmar eliminación
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
     try {
       await deletePost(postId);
       setShowDeleteConfirm(false);
       console.log('✅ Post eliminado exitosamente');
-      // El post se eliminará automáticamente vía WebSocket o se recargará la página
       if (onDelete) {
         onDelete();
       }
@@ -88,6 +106,14 @@ const PostHeader: React.FC<PostHeaderProps> = ({
 
   // Verificar si el usuario actual es el autor del post
   const isAuthor = currentUserId && author.id === currentUserId;
+
+  // ✅ DEBUG: Log para verificar el tipo de fecha
+  console.log('PostHeader - createdAt:', {
+    value: createdAt,
+    type: typeof createdAt,
+    isDate: createdAt instanceof Date,
+    isValid: createdAt instanceof Date ? !isNaN(createdAt.getTime()) : 'N/A'
+  });
 
   return (
     <>
@@ -104,6 +130,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                 <span>{author.name}</span>
               </h3>
               <p className="text-sm text-white/80">{author.title}</p>
+              {/* ✅ ARREGLADO: Usar la función mejorada de formateo */}
               <p className="text-xs text-white/80">{formatTimeAgo(createdAt)}</p>
             </div>
           </div>
@@ -150,7 +177,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
         </div>
       </div>
 
-      {/* ✅ NUEVO: Modal de confirmación de eliminación */}
+      {/* Modal de confirmación de eliminación */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
