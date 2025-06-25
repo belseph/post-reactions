@@ -130,7 +130,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     size="sm"
                     icon={MoreHorizontal}
                     onClick={() => setShowMenu(!showMenu)}
-                    className="text-white/60 hover:text-white/80 hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-full"
+                    className="text-white/60 hover:text-white/90 hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-full"
                   />
 
                   {/* ✅ NUEVO: Dropdown Menu igual que en PostHeader */}

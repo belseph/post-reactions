@@ -64,7 +64,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               variant="ghost"
               size="sm"
               icon={Smile}
-              className="text-white/60 hover:text-white/80 hover:bg-white/10 p-1 rounded-lg"
+              className="text-white/60 hover:text-white/90 hover:bg-white/10 p-1 rounded-lg"
               disabled={isSubmitting}
             />
             
