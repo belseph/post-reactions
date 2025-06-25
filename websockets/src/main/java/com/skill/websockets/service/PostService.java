@@ -1,4 +1,4 @@
-// src/main/java/com/skill/websockets/service/PostService.java (OPTIMIZADO)
+// src/main/java/com/skill/websockets/service/PostService.java (ACTUALIZADO CON WEBSOCKETS)
 package com.skill.websockets.service;
 
 import com.skill.websockets.model.Post;
@@ -10,6 +10,7 @@ import com.skill.websockets.dto.UserDTO;
 
 import com.skill.websockets.repository.PostRepository;
 import com.skill.websockets.repository.UserRepository;
+import com.skill.websockets.controller.WebSocketMessageController; // ✅ NUEVO: Importar WebSocket controller
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,20 +29,23 @@ public class PostService {
     private final UserRepository userRepository;
     private final ReactionService reactionService;
     private final CommentService commentService;
+    private final WebSocketMessageController webSocketMessageController; // ✅ NUEVO: Inyectar WebSocket controller
 
     @Autowired
     public PostService(PostRepository postRepository,
                        UserRepository userRepository,
                        ReactionService reactionService,
-                       CommentService commentService) {
+                       CommentService commentService,
+                       WebSocketMessageController webSocketMessageController) { // ✅ NUEVO: Agregar al constructor
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.reactionService = reactionService;
         this.commentService = commentService;
+        this.webSocketMessageController = webSocketMessageController; // ✅ NUEVO: Asignar
     }
 
     /**
-     * ✅ OPTIMIZADO: Convierte Post a PostDTO con menos datos innecesarios
+     * Convierte Post a PostDTO con menos datos innecesarios
      */
     private PostDTO convertToDto(Post post, Long currentUserId) {
         if (post == null) {
@@ -50,12 +54,12 @@ public class PostService {
 
         PostDTO postDTO = new PostDTO(post);
 
-        // 1. ✅ OPTIMIZACIÓN: Solo agregar reacciones si hay alguna
+        // Solo agregar reacciones si hay alguna
         Map<String, Long> reactionsLong = reactionService.getReactionsCountForTarget(post.getId(), TargetType.POST);
 
         // Filtrar solo las reacciones que tienen conteo > 0
         Map<String, Integer> reactionsWithCounts = reactionsLong.entrySet().stream()
-                .filter(entry -> entry.getValue() > 0) // ✅ Solo las que tienen conteo
+                .filter(entry -> entry.getValue() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().intValue()));
 
         // Solo setear si hay reacciones
@@ -63,15 +67,15 @@ public class PostService {
             postDTO.setReactions(reactionsWithCounts);
         }
 
-        // 2. ✅ OPTIMIZACIÓN: Solo agregar userReaction si existe
+        // Solo agregar userReaction si existe
         if (currentUserId != null) {
             String userReaction = reactionService.getUserReactionForTarget(currentUserId, post.getId(), TargetType.POST);
-            if (userReaction != null) { // Solo setear si no es null
+            if (userReaction != null) {
                 postDTO.setUserReaction(userReaction);
             }
         }
 
-        // 3. Llenar los comentarios
+        // Llenar los comentarios
         List<CommentDTO> commentDTOs = commentService.getCommentsByPostId(post.getId(), currentUserId);
         if (!commentDTOs.isEmpty()) {
             postDTO.setComments(commentDTOs);
@@ -111,13 +115,23 @@ public class PostService {
         existingPost.setContenido(postDetails.getContenido());
         existingPost.setUltimaActualizacion(LocalDateTime.now());
 
-        return postRepository.save(existingPost);
+        Post updatedPost = postRepository.save(existingPost);
+
+        // ✅ NUEVO: Notificar actualización vía WebSocket
+        PostDTO postDTO = convertToDto(updatedPost, null);
+        webSocketMessageController.notifyPostUpdate(postDTO);
+
+        return updatedPost;
     }
 
     public void deletePost(Long id) {
         if (!postRepository.existsById(id)) {
             throw new EntityNotFoundException("Post no encontrado con ID: " + id);
         }
+        
+        // ✅ NUEVO: Notificar eliminación vía WebSocket ANTES de eliminar
+        webSocketMessageController.notifyPostDelete(id);
+        
         postRepository.deleteById(id);
     }
 
