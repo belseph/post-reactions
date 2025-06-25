@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
-  children?: React.ReactNode; // ✅ Ahora es opcional
+  children?: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   loading?: boolean;
@@ -24,13 +24,13 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   type = 'button'
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 cursor-pointer outline-none border-none';
   
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white focus:ring-blue-500',
-    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-700 focus:ring-slate-500',
-    ghost: 'hover:bg-slate-100 text-slate-600 hover:text-slate-800 focus:ring-slate-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500'
+    primary: 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white',
+    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+    ghost: 'hover:bg-slate-100 text-slate-600 hover:text-slate-800',
+    danger: 'bg-red-600 hover:bg-red-700 text-white'
   };
 
   const sizeClasses = {
@@ -39,7 +39,6 @@ const Button: React.FC<ButtonProps> = ({
     lg: 'px-6 py-3 text-base'
   };
 
-  // ✅ Ajustar padding cuando solo hay icono
   const iconOnlyClasses = Icon && !children ? {
     sm: 'p-1.5',
     md: 'p-2',
@@ -56,6 +55,8 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled || loading}
       className={`${baseClasses} ${variantClasses[variant]} ${finalSizeClasses} ${disabledClasses} ${className}`}
+      style={{ outline: 'none', border: 'none' }} // ✅ CRÍTICO: Asegurar que no hay outline ni border
+      onFocus={(e) => e.target.blur()} // ✅ CRÍTICO: Quitar focus inmediatamente
     >
       {loading && (
         <span className={`animate-spin ${children ? 'mr-2' : ''}`}>⚙️</span>
