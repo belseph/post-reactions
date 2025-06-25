@@ -1,19 +1,23 @@
 import { useEffect, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
-import type { Comment, NotificationReaction } from '../../types/post';
+import type { Comment, NotificationReaction, Post } from '../../types/post';
 
 interface UseWebSocketOptions {
   onNewComment: (comment: Comment) => void;
   onReactionChange: (notification: NotificationReaction) => void;
-  onCommentUpdate?: (comment: Comment) => void; // ✅ NUEVO: Para comentarios editados
-  onCommentDelete?: (commentId: string) => void; // ✅ NUEVO: Para comentarios eliminados
+  onCommentUpdate?: (comment: Comment) => void;
+  onCommentDelete?: (commentId: string) => void;
+  onPostUpdate?: (post: Post) => void; // ✅ NUEVO: Para posts editados
+  onPostDelete?: (postId: string) => void; // ✅ NUEVO: Para posts eliminados
 }
 
 export const useWebSocket = ({ 
   onNewComment, 
   onReactionChange, 
   onCommentUpdate, 
-  onCommentDelete 
+  onCommentDelete,
+  onPostUpdate, // ✅ NUEVO
+  onPostDelete  // ✅ NUEVO
 }: UseWebSocketOptions) => {
   const clientRef = useRef<Client | null>(null);
 
@@ -38,7 +42,7 @@ export const useWebSocket = ({
           }
         });
 
-        // ✅ NUEVO: Suscripción a comentarios editados
+        // Suscripción a comentarios editados
         if (onCommentUpdate) {
           client.subscribe('/topic/comments/updated', message => {
             console.log('Comentario actualizado RAW:', message.body);
@@ -51,7 +55,7 @@ export const useWebSocket = ({
           });
         }
 
-        // ✅ NUEVO: Suscripción a comentarios eliminados
+        // Suscripción a comentarios eliminados
         if (onCommentDelete) {
           client.subscribe('/topic/comments/deleted', message => {
             console.log('Comentario eliminado RAW:', message.body);
@@ -60,6 +64,32 @@ export const useWebSocket = ({
               onCommentDelete(deletedCommentId);
             } catch (e) {
               console.error('Error parseando comentario eliminado:', e, message.body);
+            }
+          });
+        }
+
+        // ✅ NUEVO: Suscripción a posts editados
+        if (onPostUpdate) {
+          client.subscribe('/topic/posts/updated', message => {
+            console.log('Post actualizado RAW:', message.body);
+            try {
+              const updatedPost: Post = JSON.parse(message.body);
+              onPostUpdate(updatedPost);
+            } catch (e) {
+              console.error('Error parseando post actualizado:', e, message.body);
+            }
+          });
+        }
+
+        // ✅ NUEVO: Suscripción a posts eliminados
+        if (onPostDelete) {
+          client.subscribe('/topic/posts/deleted', message => {
+            console.log('Post eliminado RAW:', message.body);
+            try {
+              const deletedPostId: string = message.body.replace(/"/g, ''); // Remover comillas si las hay
+              onPostDelete(deletedPostId);
+            } catch (e) {
+              console.error('Error parseando post eliminado:', e, message.body);
             }
           });
         }
@@ -97,7 +127,7 @@ export const useWebSocket = ({
         console.log('Desactivando conexión WebSocket.');
       }
     };
-  }, [onNewComment, onReactionChange, onCommentUpdate, onCommentDelete]);
+  }, [onNewComment, onReactionChange, onCommentUpdate, onCommentDelete, onPostUpdate, onPostDelete]);
 
   return clientRef.current;
 };

@@ -12,7 +12,7 @@ import {
   addCommentToPosts 
 } from './utils/postUtils';
 
-// ✅ NUEVO: Importar utilidades de avatar
+// Importar utilidades de avatar
 import { getUserAvatar } from '../utils/avatarUtils';
 
 interface UsePostsOptions {
@@ -37,7 +37,7 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
   // Hook para manejar reacciones
   const { handlePostReaction, handleCommentReaction } = useReactions({ currentUserId });
 
-  // ✅ NUEVO: Función para asegurar que los usuarios tengan avatares
+  // Función para asegurar que los usuarios tengan avatares
   const ensureUserHasAvatar = useCallback((user: any) => {
     if (!user.avatar || user.avatar === 'https://default-avatar.url/path') {
       return {
@@ -56,7 +56,7 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
       const data = await fetchPosts(currentUserId);
       console.log('Datos RAW del backend:', data);
       
-      // ✅ NUEVO: Asegurar avatares en posts y comentarios
+      // Asegurar avatares en posts y comentarios
       const normalizedPosts: Post[] = data.map(post => {
         const parsedPost = parsePostDates(post);
         
@@ -106,7 +106,7 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
       
       console.log('✅ Comentario creado, DTO recibido:', newCommentDTO);
       
-      // ✅ NUEVO: Asegurar avatar en el nuevo comentario
+      // Asegurar avatar en el nuevo comentario
       const newComment: Comment = {
         id: newCommentDTO.id,
         author: ensureUserHasAvatar(newCommentDTO.author),
@@ -166,7 +166,7 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
   const handleNewCommentFromWS = useCallback((newComment: Comment) => {
     console.log('📡 Nuevo comentario recibido vía WebSocket:', newComment);
     
-    // ✅ NUEVO: Asegurar avatar en comentarios de WebSocket
+    // Asegurar avatar en comentarios de WebSocket
     const commentWithAvatar = {
       ...newComment,
       author: ensureUserHasAvatar(newComment.author)
@@ -228,6 +228,39 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
           comments: removeCommentsRecursive(post.comments)
         };
       });
+    });
+  }, []);
+
+  // ✅ NUEVO: Manejador para posts editados desde WebSocket
+  const handlePostUpdateFromWS = useCallback((updatedPost: Post) => {
+    console.log('📡 Post actualizado recibido vía WebSocket:', updatedPost);
+    
+    const postWithAvatar = {
+      ...updatedPost,
+      author: ensureUserHasAvatar(updatedPost.author)
+    };
+    
+    setPosts(prevPosts => {
+      return prevPosts.map(post => {
+        if (post.id === postWithAvatar.id) {
+          return {
+            ...postWithAvatar,
+            comments: post.comments, // Mantener comentarios existentes
+            reactions: post.reactions, // Mantener reacciones existentes
+            userReaction: post.userReaction // Mantener reacción del usuario
+          };
+        }
+        return post;
+      });
+    });
+  }, [ensureUserHasAvatar]);
+
+  // ✅ NUEVO: Manejador para posts eliminados desde WebSocket
+  const handlePostDeleteFromWS = useCallback((deletedPostId: string) => {
+    console.log('📡 Post eliminado recibido vía WebSocket:', deletedPostId);
+    
+    setPosts(prevPosts => {
+      return prevPosts.filter(post => post.id !== deletedPostId);
     });
   }, []);
 
@@ -297,12 +330,14 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
     }
   }, [currentUserId]);
 
-  // ✅ ACTUALIZADO: Configurar WebSocket con nuevos handlers
+  // ✅ ACTUALIZADO: Configurar WebSocket con todos los handlers
   useWebSocket({
     onNewComment: handleNewCommentFromWS,
     onReactionChange: handleReactionChange,
-    onCommentUpdate: handleCommentUpdateFromWS, // ✅ NUEVO
-    onCommentDelete: handleCommentDeleteFromWS   // ✅ NUEVO
+    onCommentUpdate: handleCommentUpdateFromWS,
+    onCommentDelete: handleCommentDeleteFromWS,
+    onPostUpdate: handlePostUpdateFromWS, // ✅ NUEVO
+    onPostDelete: handlePostDeleteFromWS   // ✅ NUEVO
   });
 
   // Cargar posts al montar el componente

@@ -4,12 +4,13 @@ import Avatar from '../ui/Avatar';
 import ReactionButton from '../reaction/ReactionButton';
 import Button from '../ui/Button';
 import CommentForm from './CommentForm';
-import { Reply, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Reply, MoreHorizontal, Edit, Trash2, Save, X } from 'lucide-react';
+import { updateComment, deleteComment } from '../../hooks/api/postsApi';
 
 interface CommentCardProps {
   comment: Comment;
   isReply?: boolean;
-  currentUserId?: string | null; // ✅ NUEVO: ID del usuario actual
+  currentUserId?: string | null;
   onReaction?: (commentId: string, reactionType: string) => void;
   onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
   forceRenderKey?: number;
@@ -20,7 +21,7 @@ interface CommentCardProps {
 const CommentCard: React.FC<CommentCardProps> = ({ 
   comment, 
   isReply = false,
-  currentUserId, // ✅ NUEVO: Recibir currentUserId
+  currentUserId,
   onReaction,
   onNewComment,
   forceRenderKey,
@@ -30,6 +31,11 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // ✅ NUEVO: Estado de edición
+  const [editContent, setEditContent] = useState(comment.content); // ✅ NUEVO: Contenido editado
+  const [isUpdating, setIsUpdating] = useState(false); // ✅ NUEVO: Estado de carga
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // ✅ NUEVO: Confirmación de eliminación
+  const [isDeleting, setIsDeleting] = useState(false); // ✅ NUEVO: Estado de eliminación
   const menuRef = useRef<HTMLDivElement>(null);
 
   const formatTimeAgo = (date: Date) => {
@@ -77,21 +83,59 @@ const CommentCard: React.FC<CommentCardProps> = ({
     }
   };
 
+  // ✅ NUEVO: Función para iniciar edición
   const handleEdit = () => {
     setShowMenu(false);
-    if (onEdit) {
-      onEdit(comment.id);
-    } else {
-      console.log('Editar comentario:', comment.id);
+    setIsEditing(true);
+    setEditContent(comment.content);
+  };
+
+  // ✅ NUEVO: Función para cancelar edición
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditContent(comment.content);
+  };
+
+  // ✅ NUEVO: Función para guardar edición
+  const handleSaveEdit = async () => {
+    if (!editContent.trim() || editContent === comment.content) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await updateComment(comment.id, editContent);
+      setIsEditing(false);
+      console.log('✅ Comentario editado exitosamente');
+      // El comentario se actualizará automáticamente vía WebSocket
+    } catch (error) {
+      console.error('❌ Error al editar comentario:', error);
+      alert('Error al editar el comentario. Inténtalo de nuevo.');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
+  // ✅ NUEVO: Función para mostrar confirmación de eliminación
   const handleDelete = () => {
     setShowMenu(false);
-    if (onDelete) {
-      onDelete(comment.id);
-    } else {
-      console.log('Eliminar comentario:', comment.id);
+    setShowDeleteConfirm(true);
+  };
+
+  // ✅ NUEVO: Función para confirmar eliminación
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteComment(comment.id);
+      setShowDeleteConfirm(false);
+      console.log('✅ Comentario eliminado exitosamente');
+      // El comentario se eliminará automáticamente vía WebSocket
+    } catch (error) {
+      console.error('❌ Error al eliminar comentario:', error);
+      alert('Error al eliminar el comentario. Inténtalo de nuevo.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -103,9 +147,10 @@ const CommentCard: React.FC<CommentCardProps> = ({
     reactions: comment.reactions,
     forceRenderKey,
     hasOnNewComment: !!onNewComment,
-    isAuthor, // ✅ NUEVO: Log para debug
+    isAuthor,
     currentUserId,
-    authorId: comment.author.id
+    authorId: comment.author.id,
+    isEditing
   });
 
   return (
@@ -128,8 +173,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-white/80">{formatTimeAgo(comment.createdAt)}</span>
                 
-                {/* ✅ NUEVO: Solo mostrar el menú si es el autor */}
-                {isAuthor && (
+                {/* Solo mostrar el menú si es el autor y no está editando */}
+                {isAuthor && !isEditing && (
                   <div className="relative" ref={menuRef}>
                     <Button
                       variant="ghost"
@@ -163,32 +208,73 @@ const CommentCard: React.FC<CommentCardProps> = ({
               </div>
             </div>
             
-            <p className="text-white leading-relaxed">{comment.content}</p>
-          </div>
-
-          <div className="flex items-center space-x-2 mt-2">
-            <ReactionButton
-              key={`reaction-${comment.id}-${forceRenderKey || 0}`}
-              currentReaction={comment.userReaction || null}
-              reactions={comment.reactions}
-              onReaction={handleReaction}
-            />
-            
-            {!isReply && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowReplyForm(!showReplyForm)}
-                icon={Reply}
-                className="text-white/70 hover:text-white/90 hover:bg-white/10 transition-colors font-medium px-2 py-1 rounded-lg"
-              >
-                Responder
-              </Button>
+            {/* ✅ NUEVO: Contenido editable o normal */}
+            {isEditing ? (
+              <div className="space-y-3">
+                <textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="w-full px-3 py-2 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/60 resize-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 min-h-[80px]"
+                  placeholder="Edita tu comentario..."
+                  disabled={isUpdating}
+                />
+                
+                <div className="flex items-center justify-end space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                    icon={X}
+                    disabled={isUpdating}
+                    className="text-white/70 hover:text-white/90 hover:bg-white/10"
+                  >
+                    Cancelar
+                  </Button>
+                  
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSaveEdit}
+                    icon={Save}
+                    loading={isUpdating}
+                    disabled={!editContent.trim() || editContent === comment.content || isUpdating}
+                    className="bg-purple-500 hover:bg-purple-600 text-white"
+                  >
+                    {isUpdating ? 'Guardando...' : 'Guardar'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-white leading-relaxed">{comment.content}</p>
             )}
           </div>
 
+          {/* Acciones solo si no está editando */}
+          {!isEditing && (
+            <div className="flex items-center space-x-2 mt-2">
+              <ReactionButton
+                key={`reaction-${comment.id}-${forceRenderKey || 0}`}
+                currentReaction={comment.userReaction || null}
+                reactions={comment.reactions}
+                onReaction={handleReaction}
+              />
+              
+              {!isReply && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  icon={Reply}
+                  className="text-white/70 hover:text-white/90 hover:bg-white/10 transition-colors font-medium px-2 py-1 rounded-lg"
+                >
+                  Responder
+                </Button>
+              )}
+            </div>
+          )}
+
           {/* Reply Form */}
-          {showReplyForm && (
+          {showReplyForm && !isEditing && (
             <div className="mt-3">
               <CommentForm
                 onSubmit={handleReplySubmit}
@@ -199,7 +285,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
           )}
 
           {/* Replies */}
-          {comment.replies && comment.replies.length > 0 && (
+          {comment.replies && comment.replies.length > 0 && !isEditing && (
             <div className="mt-3">
               {!showReplies ? (
                 <Button
@@ -225,7 +311,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                       key={`${reply.id}-${forceRenderKey || 0}`}
                       comment={reply} 
                       isReply={true}
-                      currentUserId={currentUserId} // ✅ NUEVO: Pasar currentUserId a las respuestas
+                      currentUserId={currentUserId}
                       onReaction={onReaction}
                       onNewComment={onNewComment}
                       onEdit={onEdit}
@@ -239,6 +325,37 @@ const CommentCard: React.FC<CommentCardProps> = ({
           )}
         </div>
       </div>
+
+      {/* ✅ NUEVO: Modal de confirmación de eliminación */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">¿Eliminar comentario?</h3>
+            <p className="text-slate-600 mb-6">Esta acción no se puede deshacer. El comentario se eliminará permanentemente.</p>
+            
+            <div className="flex items-center justify-end space-x-3">
+              <Button
+                variant="ghost"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="text-slate-600 hover:text-slate-800"
+              >
+                Cancelar
+              </Button>
+              
+              <Button
+                variant="danger"
+                onClick={handleConfirmDelete}
+                loading={isDeleting}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
