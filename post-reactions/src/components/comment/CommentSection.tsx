@@ -39,7 +39,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   });
 
   return (
-    <div className="border-t border-white/20 bg-black/20 rounded-b-xl">
+    <div className="border-t border-white/20 bg-white/5 backdrop-blur-sm rounded-b-xl">
       {/* Comments List */}
       {comments.length > 0 && (
         <div className="px-6 py-4 space-y-4">

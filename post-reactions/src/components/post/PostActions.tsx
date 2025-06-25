@@ -21,7 +21,7 @@ const PostActions: React.FC<PostActionsProps> = ({
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   return (
-    <div className="px-6 py-3 border-t border-white/20 flex items-center justify-between">
+    <div className="flex flex-row gap-5 pt-5">
       <div className="flex items-center space-x-2">
         <ReactionButton
           currentReaction={userReaction}
@@ -33,7 +33,7 @@ const PostActions: React.FC<PostActionsProps> = ({
           variant="ghost"
           onClick={onToggleComments}
           icon={MessageCircle}
-          className="text-white/80 hover:text-white hover:bg-white/10"
+          className="text-white/70 hover:text-purple-500 hover:scale-110 active:scale-95 active:text-blue-500 cursor-pointer transition-all duration-200"
         >
           Comentar
         </Button>
@@ -44,17 +44,17 @@ const PostActions: React.FC<PostActionsProps> = ({
           variant="ghost"
           size="sm"
           icon={Share2}
-          className="text-white/60 hover:text-white/80 hover:bg-white/10 p-2"
+          className="text-white/70 hover:text-white/90 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 p-2"
         />
         <Button
           variant="ghost"
           size="sm"
           icon={Bookmark}
           onClick={() => setIsBookmarked(!isBookmarked)}
-          className={`p-2 ${
+          className={`p-2 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 ${
             isBookmarked 
-              ? 'text-blue-300 bg-white/10' 
-              : 'text-white/60 hover:text-white/80 hover:bg-white/10'
+              ? 'text-blue-300' 
+              : 'text-white/70 hover:text-white/90'
           }`}
         />
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ThumbsUp } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { reactionConfig } from '../../constants/reactions';
 import Tooltip from '../ui/Tooltip';
 
@@ -11,6 +11,7 @@ interface ReactionButtonProps {
 
 const ReactionButton: React.FC<ReactionButtonProps> = ({ 
   currentReaction, 
+  reactions,
   onReaction
 }) => {
   const [isHovering, setIsHovering] = useState(false);
@@ -34,13 +35,14 @@ const ReactionButton: React.FC<ReactionButtonProps> = ({
   };
 
   const currentReactionConfig = currentReaction ? reactionConfig[currentReaction as keyof typeof reactionConfig] : null;
+  const totalReactions = Object.values(reactions).reduce((sum, count) => sum + count, 0);
 
   return (
     <div className="relative">
       {/* Hover Menu */}
       {isHovering && (
         <div 
-          className="absolute bottom-full left-0 mb-2 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 flex items-center space-x-1 z-50 animate-in slide-in-from-bottom-2 duration-200"
+          className="absolute bottom-full left-0 mb-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-2 flex items-center space-x-1 z-50 animate-in slide-in-from-bottom-2 duration-200"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -50,8 +52,8 @@ const ReactionButton: React.FC<ReactionButtonProps> = ({
                 onClick={() => onReaction(key)}
                 onMouseEnter={() => setHoveredReaction(key)}
                 onMouseLeave={() => setHoveredReaction(null)}
-                className={`p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 flex items-center justify-center min-w-[50px] min-h-[50px] cursor-pointer ${
-                  hoveredReaction === key ? 'transform scale-125 bg-slate-50' : ''
+                className={`p-3 rounded-xl hover:bg-white/20 transition-all duration-200 flex items-center justify-center min-w-[50px] min-h-[50px] cursor-pointer ${
+                  hoveredReaction === key ? 'transform scale-125 bg-white/20' : ''
                 }`}
               >
                 <span className="text-2xl select-none">{config.emoji}</span>
@@ -61,31 +63,28 @@ const ReactionButton: React.FC<ReactionButtonProps> = ({
         </div>
       )}
 
-      {/* ✅ CAMBIO 3: Main Button SIN el número de reacciones */}
-      <button
-        onClick={handleQuickReaction}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
-          currentReaction
-            ? `${currentReactionConfig?.color} bg-blue-50 hover:bg-blue-100`
-            : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
-        }`}
-      >
-        {currentReaction ? (
-          <>
+      {/* Main Button */}
+      <div className="flex items-center">
+        <button
+          onClick={handleQuickReaction}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          className={`cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95 ${
+            currentReaction
+              ? `${currentReactionConfig?.color}`
+              : 'text-white/70 hover:text-red-400'
+          }`}
+        >
+          {currentReaction ? (
             <span className="text-lg select-none">{currentReactionConfig?.emoji}</span>
-            <span>{currentReactionConfig?.label}</span>
-          </>
-        ) : (
-          <>
-            <ThumbsUp className="w-5 h-5" />
-            <span>Me gusta</span>
-          </>
+          ) : (
+            <Heart className="w-5 h-5" />
+          )}
+        </button>
+        {totalReactions > 0 && (
+          <p className="text-white/70 ml-1">{totalReactions}</p>
         )}
-        
-        {/* ✅ ELIMINADO: Ya no mostramos el contador de reacciones en el botón */}
-      </button>
+      </div>
     </div>
   );
 };

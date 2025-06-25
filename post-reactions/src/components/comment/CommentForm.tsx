@@ -49,7 +49,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 border border-white/30 rounded-xl resize-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 text-white"
+            className="w-full px-4 py-3 border border-white/30 rounded-xl resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 backdrop-blur-sm text-white"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -74,7 +74,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               size="sm"
               variant={content.trim() && !isSubmitting ? 'primary' : 'secondary'}
               loading={isSubmitting}
-              className={content.trim() && !isSubmitting ? 'bg-white/20 hover:bg-white/30 text-white border-white/30' : ''}
+              className={content.trim() && !isSubmitting ? 'bg-purple-500 hover:bg-purple-700 text-white' : 'bg-white/20 hover:bg-white/30 text-white/70'}
             >
               {isSubmitting ? 'Enviando...' : 'Comentar'}
             </Button>

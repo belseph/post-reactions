@@ -17,7 +17,7 @@ const ReactionStats: React.FC<ReactionStatsProps> = ({ reactions, commentsCount 
 
   return (
     <div className="py-2 border-t border-white/20">
-      <div className="flex items-center justify-between text-sm text-white/80">
+      <div className="flex items-center justify-between text-sm text-white">
         {totalReactions > 0 && (
           <div className="flex items-center space-x-2">
             <div className="flex -space-x-1">

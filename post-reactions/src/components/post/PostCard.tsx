@@ -34,7 +34,7 @@ const PostCard: React.FC<PostCardProps> = ({
   });
 
   return (
-    <article className="bg-gradient-to-br from-teal-600 via-green-600 to-emerald-700 rounded-xl p-6 border border-teal-500/30 hover:from-teal-500 hover:via-green-500 hover:to-emerald-600 transition-all duration-300 overflow-hidden shadow-lg">
+    <article className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 overflow-hidden shadow-lg">
       <PostHeader
         author={post.author}
         tags={post.tags}
