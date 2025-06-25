@@ -44,13 +44,13 @@ const CommentForm: React.FC<CommentFormProps> = ({
         />
         
         <div className="flex-1 relative">
-          {/* ✅ ARREGLADO: Hover más sutil y coherente */}
+          {/* ✅ ARREGLADO: Quitar el borde morado y usar colores coherentes */}
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 border border-white/20 rounded-xl resize-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 backdrop-blur-sm text-white hover:bg-white/15 hover:border-white/30"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl resize-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 backdrop-blur-sm text-white hover:bg-white/15 hover:border-white/30 focus:outline-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();

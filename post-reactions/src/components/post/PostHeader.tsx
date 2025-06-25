@@ -31,7 +31,6 @@ const PostHeader: React.FC<PostHeaderProps> = ({
     return `Hace ${Math.floor(diffInHours / 24)}d`;
   };
 
-  // ✅ NUEVO: Cerrar menú al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -77,11 +76,11 @@ const PostHeader: React.FC<PostHeaderProps> = ({
               <span>{author.name}</span>
             </h3>
             <p className="text-sm text-white/80">{author.title}</p>
-            <p className="text-xs text-white/60">{formatTimeAgo(createdAt)}</p>
+            {/* ✅ ARREGLADO: Fecha con más contraste */}
+            <p className="text-xs text-white/80">{formatTimeAgo(createdAt)}</p>
           </div>
         </div>
         
-        {/* ✅ NUEVO: Menú desplegable de opciones */}
         <div className="relative" ref={menuRef}>
           <button 
             onClick={() => setShowMenu(!showMenu)}
@@ -90,7 +89,6 @@ const PostHeader: React.FC<PostHeaderProps> = ({
             <MoreHorizontal className="w-5 h-5" />
           </button>
 
-          {/* ✅ NUEVO: Dropdown Menu */}
           {showMenu && (
             <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
               <button
@@ -113,10 +111,10 @@ const PostHeader: React.FC<PostHeaderProps> = ({
         </div>
       </div>
 
-      {/* Tags con colores adaptados al fondo verde */}
+      {/* ✅ ARREGLADO: Tags con colores reales, no transparentes */}
       <div className="flex flex-wrap gap-2 mb-4">
         {tags.map((tag) => (
-          <Badge key={tag} variant={tag} className="bg-white/20 text-white border-white/30">
+          <Badge key={tag} variant={tag}>
             #{tag}
           </Badge>
         ))}

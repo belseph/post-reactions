@@ -40,7 +40,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
     return `${Math.floor(diffInMinutes / 1440)}d`;
   };
 
-  // ✅ NUEVO: Cerrar menú al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -76,7 +75,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
     }
   };
 
-  // ✅ NUEVO: Handlers para editar y eliminar
   const handleEdit = () => {
     setShowMenu(false);
     if (onEdit) {
@@ -112,7 +110,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
         />
         
         <div className="flex-1 min-w-0">
-          {/* ✅ ARREGLADO: Hover más sutil para el fondo del comentario */}
           <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/20 hover:bg-white/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-1">
               <div className="flex-1">
@@ -121,19 +118,19 @@ const CommentCard: React.FC<CommentCardProps> = ({
               </div>
               
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-white/60">{formatTimeAgo(comment.createdAt)}</span>
+                {/* ✅ ARREGLADO: Fecha con más contraste */}
+                <span className="text-xs text-white/80">{formatTimeAgo(comment.createdAt)}</span>
                 
-                {/* ✅ ARREGLADO: Menú desplegable con el mismo estilo que el post */}
+                {/* ✅ ARREGLADO: 3 puntos siempre visibles, no transparentes */}
                 <div className="relative" ref={menuRef}>
                   <Button
                     variant="ghost"
                     size="sm"
                     icon={MoreHorizontal}
                     onClick={() => setShowMenu(!showMenu)}
-                    className="text-white/60 hover:text-white/90 hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-full"
+                    className="text-white/70 hover:text-white/90 hover:bg-white/10 transition-all duration-200 p-1 rounded-full"
                   />
 
-                  {/* ✅ NUEVO: Dropdown Menu igual que en PostHeader */}
                   {showMenu && (
                     <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
                       <button

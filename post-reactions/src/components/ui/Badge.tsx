@@ -3,7 +3,7 @@ import { getTagColor } from '../../constants/tagColors';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: string; // Ahora acepta cualquier string (nombre de etiqueta)
+  variant?: string;
   className?: string;
 }
 
@@ -12,7 +12,7 @@ const Badge: React.FC<BadgeProps> = ({
   variant,
   className = ''
 }) => {
-  // Usar la función helper para obtener el color
+  // ✅ ARREGLADO: Usar la función helper para obtener el color REAL
   const colorClasses = variant ? getTagColor(variant) : getTagColor('default');
 
   return (
