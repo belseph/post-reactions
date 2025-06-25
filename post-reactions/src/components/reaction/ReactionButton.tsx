@@ -39,10 +39,10 @@ const ReactionButton: React.FC<ReactionButtonProps> = ({
 
   return (
     <div className="relative">
-      {/* Hover Menu */}
+      {/* ✅ ARREGLADO: Hover Menu con mejor fondo */}
       {isHovering && (
         <div 
-          className="absolute bottom-full left-0 mb-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-2 flex items-center space-x-1 z-50 animate-in slide-in-from-bottom-2 duration-200"
+          className="absolute bottom-full left-0 mb-2 bg-slate-800/95 backdrop-blur-md border border-slate-600 rounded-2xl shadow-2xl p-2 flex items-center space-x-1 z-50 animate-in slide-in-from-bottom-2 duration-200"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -52,8 +52,8 @@ const ReactionButton: React.FC<ReactionButtonProps> = ({
                 onClick={() => onReaction(key)}
                 onMouseEnter={() => setHoveredReaction(key)}
                 onMouseLeave={() => setHoveredReaction(null)}
-                className={`p-3 rounded-xl hover:bg-white/20 transition-all duration-200 flex items-center justify-center min-w-[50px] min-h-[50px] cursor-pointer ${
-                  hoveredReaction === key ? 'transform scale-125 bg-white/20' : ''
+                className={`p-3 rounded-xl hover:bg-slate-700/80 transition-all duration-200 flex items-center justify-center min-w-[50px] min-h-[50px] cursor-pointer ${
+                  hoveredReaction === key ? 'transform scale-125 bg-slate-700/80' : ''
                 }`}
               >
                 <span className="text-2xl select-none">{config.emoji}</span>

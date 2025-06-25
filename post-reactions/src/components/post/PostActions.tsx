@@ -21,7 +21,8 @@ const PostActions: React.FC<PostActionsProps> = ({
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   return (
-    <div className="flex flex-row gap-5 pt-5">
+    <div className="flex items-center justify-between pt-5">
+      {/* ✅ ARREGLADO: Lado izquierdo - Reacciones y Comentar */}
       <div className="flex items-center space-x-2">
         <ReactionButton
           currentReaction={userReaction}
@@ -33,28 +34,29 @@ const PostActions: React.FC<PostActionsProps> = ({
           variant="ghost"
           onClick={onToggleComments}
           icon={MessageCircle}
-          className="text-white/70 hover:text-purple-500 hover:scale-110 active:scale-95 active:text-blue-500 cursor-pointer transition-all duration-200"
+          className="text-white/70 hover:text-purple-400 hover:bg-purple-500/20 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 px-3 py-2 rounded-lg"
         >
           Comentar
         </Button>
       </div>
 
+      {/* ✅ ARREGLADO: Lado derecho - Compartir y Guardar */}
       <div className="flex items-center space-x-2">
         <Button
           variant="ghost"
           size="sm"
           icon={Share2}
-          className="text-white/70 hover:text-white/90 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 p-2"
+          className="text-white/70 hover:text-purple-400 hover:bg-purple-500/20 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 p-2 rounded-lg"
         />
         <Button
           variant="ghost"
           size="sm"
           icon={Bookmark}
           onClick={() => setIsBookmarked(!isBookmarked)}
-          className={`p-2 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 ${
+          className={`p-2 hover:scale-110 active:scale-95 cursor-pointer transition-all duration-200 rounded-lg ${
             isBookmarked 
-              ? 'text-blue-300' 
-              : 'text-white/70 hover:text-white/90'
+              ? 'text-blue-400 bg-blue-500/20' 
+              : 'text-white/70 hover:text-purple-400 hover:bg-purple-500/20'
           }`}
         />
       </div>

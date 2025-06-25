@@ -35,7 +35,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
   };
 
   return (
-    <div className="p-6 border-t border-white/20">
+    <div className="p-6 border-t border-slate-600/30">
       <form onSubmit={handleSubmit} className="flex items-start space-x-3">
         <Avatar
           src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=150"
@@ -44,12 +44,13 @@ const CommentForm: React.FC<CommentFormProps> = ({
         />
         
         <div className="flex-1 relative">
+          {/* ✅ ARREGLADO: Mejor contraste para el textarea */}
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 border border-white/30 rounded-xl resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 backdrop-blur-sm text-white"
+            className="w-full px-4 py-3 border border-slate-600/50 rounded-xl resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 placeholder-slate-400 min-h-[80px] disabled:opacity-50 bg-slate-700/40 backdrop-blur-sm text-white"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -63,7 +64,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               variant="ghost"
               size="sm"
               icon={Smile}
-              className="text-white/60 hover:text-white/80 p-1"
+              className="text-slate-400 hover:text-slate-200 p-1"
               disabled={isSubmitting}
             />
             
@@ -74,7 +75,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               size="sm"
               variant={content.trim() && !isSubmitting ? 'primary' : 'secondary'}
               loading={isSubmitting}
-              className={content.trim() && !isSubmitting ? 'bg-purple-500 hover:bg-purple-700 text-white' : 'bg-white/20 hover:bg-white/30 text-white/70'}
+              className={content.trim() && !isSubmitting ? 'bg-purple-500 hover:bg-purple-700 text-white' : 'bg-slate-600/50 hover:bg-slate-600/70 text-slate-300'}
             >
               {isSubmitting ? 'Enviando...' : 'Comentar'}
             </Button>

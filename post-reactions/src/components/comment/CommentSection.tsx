@@ -39,8 +39,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   });
 
   return (
-    <div className="border-t border-white/20 bg-white/5 backdrop-blur-sm rounded-b-xl">
-      {/* Comments List */}
+    <div className="border-t border-white/20 bg-slate-800/30 backdrop-blur-sm rounded-b-xl">
+      {/* ✅ ARREGLADO: Comments List con mejor contraste */}
       {comments.length > 0 && (
         <div className="px-6 py-4 space-y-4">
           {comments.map((comment) => (
