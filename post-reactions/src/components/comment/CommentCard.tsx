@@ -73,21 +73,21 @@ const CommentCard: React.FC<CommentCardProps> = ({
         />
         
         <div className="flex-1 min-w-0">
-          {/* ✅ ARREGLADO: Mejor contraste para el fondo del comentario */}
-          <div className="bg-slate-700/40 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-600/30">
+          {/* ✅ ARREGLADO: Contraste más sutil para el fondo del comentario */}
+          <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/30">
             <div className="flex items-center justify-between mb-1">
               <div className="flex-1">
                 <h4 className="font-semibold text-sm text-white">{comment.author.name}</h4>
-                <p className="text-sm text-slate-300">{comment.author.title}</p>
+                <p className="text-sm text-white/80">{comment.author.title}</p>
               </div>
               
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-slate-400">{formatTimeAgo(comment.createdAt)}</span>
+                <span className="text-xs text-white/60">{formatTimeAgo(comment.createdAt)}</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   icon={MoreHorizontal}
-                  className="text-slate-400 hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                  className="text-white/60 hover:text-white/80 opacity-0 group-hover:opacity-100 transition-opacity p-1"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 size="sm"
                 onClick={() => setShowReplyForm(!showReplyForm)}
                 icon={Reply}
-                className="text-slate-300 hover:text-purple-400 transition-colors font-medium"
+                className="text-white/70 hover:text-purple-300 transition-colors font-medium"
               >
                 Responder
               </Button>
@@ -135,7 +135,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowReplies(true)}
-                  className="text-purple-400 hover:text-purple-300 text-sm font-medium"
+                  className="text-purple-300 hover:text-purple-200 text-sm font-medium"
                 >
                   Ver {comment.replies.length} respuesta{comment.replies.length > 1 ? 's' : ''}
                 </Button>
@@ -145,7 +145,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowReplies(false)}
-                    className="text-slate-300 hover:text-slate-100 text-sm font-medium"
+                    className="text-white/70 hover:text-white/90 text-sm font-medium"
                   >
                     Ocultar respuestas
                   </Button>
