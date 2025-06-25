@@ -6,6 +6,7 @@ import CommentForm from './CommentForm';
 interface CommentSectionProps {
   comments: Comment[];
   postId: string;
+  currentUserId?: string | null; // ✅ NUEVO: ID del usuario actual
   onCommentReaction?: (commentId: string, reactionType: string) => void;
   onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
   forceRenderKey?: number;
@@ -13,7 +14,8 @@ interface CommentSectionProps {
 
 const CommentSection: React.FC<CommentSectionProps> = ({ 
   comments, 
-  postId, 
+  postId,
+  currentUserId, // ✅ NUEVO: Recibir currentUserId
   onCommentReaction,
   onNewComment,
   forceRenderKey
@@ -35,18 +37,21 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   // ✅ NUEVO: Handlers para editar y eliminar comentarios
   const handleEditComment = (commentId: string) => {
     console.log('Editar comentario:', commentId);
-    // Aquí puedes implementar la lógica de edición
+    // TODO: Implementar lógica de edición
+    // Aquí podrías abrir un modal de edición o cambiar el comentario a modo edición
   };
 
   const handleDeleteComment = (commentId: string) => {
     console.log('Eliminar comentario:', commentId);
-    // Aquí puedes implementar la lógica de eliminación
+    // TODO: Implementar lógica de eliminación
+    // Aquí podrías mostrar un modal de confirmación y luego llamar al API
   };
 
   console.log(`🔄 Renderizando CommentSection para post ${postId}:`, {
     commentsCount: comments.length,
     forceRenderKey,
-    hasOnNewComment: !!onNewComment
+    hasOnNewComment: !!onNewComment,
+    currentUserId // ✅ NUEVO: Log para debug
   });
 
   return (
@@ -58,10 +63,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             <CommentCard 
               key={`${comment.id}-${forceRenderKey || 0}`}
               comment={comment}
+              currentUserId={currentUserId} // ✅ NUEVO: Pasar currentUserId
               onReaction={onCommentReaction}
               onNewComment={onNewComment}
-              onEdit={handleEditComment} // ✅ NUEVO: Pasar función de editar
-              onDelete={handleDeleteComment} // ✅ NUEVO: Pasar función de eliminar
+              onEdit={handleEditComment}
+              onDelete={handleDeleteComment}
               forceRenderKey={forceRenderKey}
             />
           ))}

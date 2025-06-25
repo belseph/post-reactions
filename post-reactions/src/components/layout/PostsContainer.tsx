@@ -73,6 +73,7 @@ const PostsContainer: React.FC<PostsContainerProps> = ({ selectedTag, currentUse
           <PostCard
             key={post.id}
             post={post}
+            currentUserId={currentUserId} // ✅ NUEVO: Pasar currentUserId
             onReaction={handleReaction}
             onCommentReaction={handleCommentReaction}
             onNewComment={handleNewComment}

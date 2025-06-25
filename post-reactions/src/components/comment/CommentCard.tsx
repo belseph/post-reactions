@@ -9,6 +9,7 @@ import { Reply, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 interface CommentCardProps {
   comment: Comment;
   isReply?: boolean;
+  currentUserId?: string | null; // ✅ NUEVO: ID del usuario actual
   onReaction?: (commentId: string, reactionType: string) => void;
   onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
   forceRenderKey?: number;
@@ -18,7 +19,8 @@ interface CommentCardProps {
 
 const CommentCard: React.FC<CommentCardProps> = ({ 
   comment, 
-  isReply = false, 
+  isReply = false,
+  currentUserId, // ✅ NUEVO: Recibir currentUserId
   onReaction,
   onNewComment,
   forceRenderKey,
@@ -93,11 +95,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
     }
   };
 
+  // ✅ NUEVO: Verificar si el usuario actual es el autor del comentario
+  const isAuthor = currentUserId && comment.author.id === currentUserId;
+
   console.log(`🔄 Renderizando CommentCard ${comment.id}:`, {
     userReaction: comment.userReaction,
     reactions: comment.reactions,
     forceRenderKey,
-    hasOnNewComment: !!onNewComment
+    hasOnNewComment: !!onNewComment,
+    isAuthor, // ✅ NUEVO: Log para debug
+    currentUserId,
+    authorId: comment.author.id
   });
 
   return (
@@ -118,39 +126,40 @@ const CommentCard: React.FC<CommentCardProps> = ({
               </div>
               
               <div className="flex items-center space-x-2">
-                {/* ✅ ARREGLADO: Fecha con más contraste */}
                 <span className="text-xs text-white/80">{formatTimeAgo(comment.createdAt)}</span>
                 
-                {/* ✅ ARREGLADO: 3 puntos siempre visibles, no transparentes */}
-                <div className="relative" ref={menuRef}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    icon={MoreHorizontal}
-                    onClick={() => setShowMenu(!showMenu)}
-                    className="text-white/70 hover:text-white/90 hover:bg-white/10 transition-all duration-200 p-1 rounded-full"
-                  />
+                {/* ✅ NUEVO: Solo mostrar el menú si es el autor */}
+                {isAuthor && (
+                  <div className="relative" ref={menuRef}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon={MoreHorizontal}
+                      onClick={() => setShowMenu(!showMenu)}
+                      className="text-white/70 hover:text-white/90 hover:bg-white/10 transition-all duration-200 p-1 rounded-full"
+                    />
 
-                  {showMenu && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
-                      <button
-                        onClick={handleEdit}
-                        className="w-full flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                      >
-                        <Edit className="w-4 h-4" />
-                        <span className="text-sm font-medium">Editar comentario</span>
-                      </button>
-                      
-                      <button
-                        onClick={handleDelete}
-                        className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="text-sm font-medium">Eliminar comentario</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+                    {showMenu && (
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                        <button
+                          onClick={handleEdit}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                        >
+                          <Edit className="w-4 h-4" />
+                          <span className="text-sm font-medium">Editar comentario</span>
+                        </button>
+                        
+                        <button
+                          onClick={handleDelete}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span className="text-sm font-medium">Eliminar comentario</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -216,6 +225,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                       key={`${reply.id}-${forceRenderKey || 0}`}
                       comment={reply} 
                       isReply={true}
+                      currentUserId={currentUserId} // ✅ NUEVO: Pasar currentUserId a las respuestas
                       onReaction={onReaction}
                       onNewComment={onNewComment}
                       onEdit={onEdit}

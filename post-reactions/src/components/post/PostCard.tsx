@@ -9,13 +9,15 @@ import { getPostImage } from '../../utils/imageUtils';
 
 interface PostCardProps {
   post: Post;
+  currentUserId?: string | null; // ✅ NUEVO: ID del usuario actual
   onReaction: (postId: string, reactionType: string) => void;
   onCommentReaction?: (commentId: string, reactionType: string) => void;
   onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ 
-  post, 
+  post,
+  currentUserId, // ✅ NUEVO: Recibir currentUserId
   onReaction, 
   onCommentReaction,
   onNewComment
@@ -26,11 +28,26 @@ const PostCard: React.FC<PostCardProps> = ({
     onReaction(post.id, reactionType);
   };
 
+  // ✅ NUEVO: Handlers para editar y eliminar posts
+  const handleEditPost = () => {
+    console.log('Editar post:', post.id);
+    // TODO: Implementar lógica de edición
+    // Aquí podrías abrir un modal de edición o navegar a una página de edición
+  };
+
+  const handleDeletePost = () => {
+    console.log('Eliminar post:', post.id);
+    // TODO: Implementar lógica de eliminación
+    // Aquí podrías mostrar un modal de confirmación y luego llamar al API
+  };
+
   console.log(`🔄 Renderizando PostCard ${post.id}:`, {
     userReaction: post.userReaction,
     reactions: post.reactions,
     _lastUpdate: post._lastUpdate,
-    hasOnNewComment: !!onNewComment
+    hasOnNewComment: !!onNewComment,
+    currentUserId, // ✅ NUEVO: Log para debug
+    authorId: post.author.id
   });
 
   return (
@@ -39,6 +56,9 @@ const PostCard: React.FC<PostCardProps> = ({
         author={post.author}
         tags={post.tags}
         createdAt={post.createdAt}
+        currentUserId={currentUserId} // ✅ NUEVO: Pasar currentUserId
+        onEdit={handleEditPost} // ✅ NUEVO: Pasar handler de edición
+        onDelete={handleDeletePost} // ✅ NUEVO: Pasar handler de eliminación
       />
 
       <PostContent 
@@ -64,6 +84,7 @@ const PostCard: React.FC<PostCardProps> = ({
         <CommentSection 
           comments={post.comments} 
           postId={post.id}
+          currentUserId={currentUserId} // ✅ NUEVO: Pasar currentUserId
           onCommentReaction={onCommentReaction}
           onNewComment={onNewComment}
           forceRenderKey={post._lastUpdate}

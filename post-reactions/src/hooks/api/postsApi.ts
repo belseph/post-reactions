@@ -78,7 +78,7 @@ export const fetchUserReaction = async (
 };
 
 /**
- * ✅ NUEVO: Crear un comentario
+ * Crear un comentario
  */
 export const createComment = async (
   content: string,
@@ -106,7 +106,7 @@ export const createComment = async (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      contenido: content // ✅ IMPORTANTE: El backend espera 'contenido'
+      contenido: content
     })
   });
 
@@ -120,4 +120,120 @@ export const createComment = async (
   const result = await response.json();
   console.log(`✅ Comentario creado exitosamente:`, result);
   return result;
+};
+
+/**
+ * ✅ NUEVO: Editar un post
+ */
+export const updatePost = async (
+  postId: string,
+  title: string,
+  content: string,
+  currentUserId?: string
+): Promise<any> => {
+  console.log(`🚀 Editando post ${postId}:`, { title, content, currentUserId });
+
+  const url = new URL(`${API_BASE_URL}/posts/${postId}`);
+  if (currentUserId) {
+    url.searchParams.append('currentUserId', currentUserId);
+  }
+
+  const response = await fetch(url.toString(), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      titulo: title,
+      contenido: content
+    })
+  });
+
+  console.log(`📡 Respuesta del servidor: ${response.status} ${response.statusText}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al editar post: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const result = await response.json();
+  console.log(`✅ Post editado exitosamente:`, result);
+  return result;
+};
+
+/**
+ * ✅ NUEVO: Eliminar un post
+ */
+export const deletePost = async (postId: string): Promise<void> => {
+  console.log(`🚀 Eliminando post ${postId}`);
+
+  const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
+  console.log(`📡 Respuesta del servidor: ${response.status} ${response.statusText}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al eliminar post: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  console.log(`✅ Post eliminado exitosamente`);
+};
+
+/**
+ * ✅ NUEVO: Editar un comentario
+ */
+export const updateComment = async (
+  commentId: string,
+  content: string
+): Promise<any> => {
+  console.log(`🚀 Editando comentario ${commentId}:`, { content });
+
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contenido: content
+    })
+  });
+
+  console.log(`📡 Respuesta del servidor: ${response.status} ${response.statusText}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al editar comentario: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const result = await response.json();
+  console.log(`✅ Comentario editado exitosamente:`, result);
+  return result;
+};
+
+/**
+ * ✅ NUEVO: Eliminar un comentario
+ */
+export const deleteComment = async (commentId: string): Promise<void> => {
+  console.log(`🚀 Eliminando comentario ${commentId}`);
+
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
+  console.log(`📡 Respuesta del servidor: ${response.status} ${response.statusText}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al eliminar comentario: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  console.log(`✅ Comentario eliminado exitosamente`);
 };
