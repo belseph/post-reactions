@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Send } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Smile } from 'lucide-react';
 import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
-import EmojiPicker from '../ui/EmojiPicker';
+import EmojiPickerReact, { EmojiClickData } from 'emoji-picker-react';
 
 interface CommentFormProps {
   onSubmit: (content: string) => void;
@@ -19,6 +19,8 @@ const CommentForm: React.FC<CommentFormProps> = ({
 }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,9 +37,27 @@ const CommentForm: React.FC<CommentFormProps> = ({
     }
   };
 
-  // ✅ NUEVO: Función para agregar emoji al contenido
-  const handleEmojiSelect = (emoji: string) => {
-    setContent(prev => prev + emoji);
+  // Cerrar el picker cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
+
+  // Función para agregar emoji al contenido
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setContent(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
   };
 
   return (
@@ -50,7 +70,6 @@ const CommentForm: React.FC<CommentFormProps> = ({
         />
         
         <div className="flex-1 relative">
-          {/* ✅ ARREGLADO: Quitar el borde morado y usar colores coherentes */}
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -67,11 +86,35 @@ const CommentForm: React.FC<CommentFormProps> = ({
           />
           
           <div className="flex items-center justify-between mt-3">
-            {/* ✅ NUEVO: Selector de emojis */}
-            <EmojiPicker
-              onEmojiSelect={handleEmojiSelect}
-              className="flex-shrink-0"
-            />
+            {/* Selector de emojis usando directamente emoji-picker-react */}
+            <div className="relative" ref={emojiPickerRef}>
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="text-white/60 hover:text-white/90 hover:bg-white/10 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 p-2 rounded-lg outline-none border-none"
+                style={{ outline: 'none', border: 'none' }}
+                onFocus={(e) => e.target.blur()}
+              >
+                <Smile className="w-5 h-5" />
+              </button>
+
+              {/* Picker de emojis */}
+              {showEmojiPicker && (
+                <div className="absolute bottom-full left-0 mb-2 z-50 animate-in slide-in-from-bottom-2 duration-200">
+                  <EmojiPickerReact
+                    onEmojiClick={handleEmojiClick}
+                    width={300}
+                    height={400}
+                    previewConfig={{
+                      showPreview: false
+                    }}
+                    searchDisabled={false}
+                    skinTonesDisabled={true}
+                    lazyLoadEmojis={true}
+                  />
+                </div>
+              )}
+            </div>
             
             <Button
               type="submit"
