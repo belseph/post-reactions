@@ -12,6 +12,9 @@ import {
   addCommentToPosts 
 } from './utils/postUtils';
 
+// ✅ NUEVO: Importar utilidades de avatar
+import { getUserAvatar } from '../utils/avatarUtils';
+
 interface UsePostsOptions {
   currentUserId: string | null;
 }
@@ -23,7 +26,7 @@ interface UsePostsReturn {
   fetchPosts: () => Promise<void>;
   handleReaction: (postId: string, reactionType: string) => Promise<void>;
   handleCommentReaction: (commentId: string, reactionType: string) => Promise<void>;
-  handleNewComment: (postId: string, content: string, parentCommentId?: string) => Promise<void>; // ✅ NUEVO
+  handleNewComment: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
 }
 
 export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => {
@@ -34,6 +37,17 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
   // Hook para manejar reacciones
   const { handlePostReaction, handleCommentReaction } = useReactions({ currentUserId });
 
+  // ✅ NUEVO: Función para asegurar que los usuarios tengan avatares
+  const ensureUserHasAvatar = useCallback((user: any) => {
+    if (!user.avatar || user.avatar === 'https://default-avatar.url/path') {
+      return {
+        ...user,
+        avatar: getUserAvatar(user.id)
+      };
+    }
+    return user;
+  }, []);
+
   // Función para cargar posts
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -42,8 +56,28 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
       const data = await fetchPosts(currentUserId);
       console.log('Datos RAW del backend:', data);
       
-      const normalizedPosts: Post[] = data.map(parsePostDates);
-      console.log('Posts normalizados:', normalizedPosts);
+      // ✅ NUEVO: Asegurar avatares en posts y comentarios
+      const normalizedPosts: Post[] = data.map(post => {
+        const parsedPost = parsePostDates(post);
+        
+        // Asegurar avatar del autor del post
+        parsedPost.author = ensureUserHasAvatar(parsedPost.author);
+        
+        // Asegurar avatares en comentarios recursivamente
+        const ensureCommentAvatars = (comments: Comment[]): Comment[] => {
+          return comments.map(comment => ({
+            ...comment,
+            author: ensureUserHasAvatar(comment.author),
+            replies: comment.replies ? ensureCommentAvatars(comment.replies) : []
+          }));
+        };
+        
+        parsedPost.comments = ensureCommentAvatars(parsedPost.comments);
+        
+        return parsedPost;
+      });
+      
+      console.log('Posts normalizados con avatares:', normalizedPosts);
       
       setPosts(normalizedPosts);
     } catch (err: any) {
@@ -52,9 +86,9 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
     } finally {
       setLoading(false);
     }
-  }, [currentUserId]);
+  }, [currentUserId, ensureUserHasAvatar]);
 
-  // ✅ NUEVO: Función para crear comentarios
+  // Función para crear comentarios
   const handleNewComment = useCallback(async (
     postId: string, 
     content: string, 
@@ -72,11 +106,10 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
       
       console.log('✅ Comentario creado, DTO recibido:', newCommentDTO);
       
-      // El comentario se agregará automáticamente vía WebSocket
-      // Pero podemos agregarlo localmente también para respuesta inmediata
+      // ✅ NUEVO: Asegurar avatar en el nuevo comentario
       const newComment: Comment = {
         id: newCommentDTO.id,
-        author: newCommentDTO.author,
+        author: ensureUserHasAvatar(newCommentDTO.author),
         content: newCommentDTO.content,
         createdAt: new Date(newCommentDTO.createdAt),
         reactions: newCommentDTO.reactions || {},
@@ -127,13 +160,20 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
       console.error('❌ Error al crear comentario:', error);
       throw error;
     }
-  }, [currentUserId]);
+  }, [currentUserId, ensureUserHasAvatar]);
 
   // Manejador para nuevos comentarios desde WebSocket
   const handleNewCommentFromWS = useCallback((newComment: Comment) => {
     console.log('📡 Nuevo comentario recibido vía WebSocket:', newComment);
-    setPosts(prevPosts => addCommentToPosts(prevPosts, newComment));
-  }, []);
+    
+    // ✅ NUEVO: Asegurar avatar en comentarios de WebSocket
+    const commentWithAvatar = {
+      ...newComment,
+      author: ensureUserHasAvatar(newComment.author)
+    };
+    
+    setPosts(prevPosts => addCommentToPosts(prevPosts, commentWithAvatar));
+  }, [ensureUserHasAvatar]);
 
   // Manejador para cambios de reacciones
   const handleReactionChange = useCallback(async (reactionNotification: NotificationReaction) => {
@@ -219,6 +259,6 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
     fetchPosts: loadPosts, 
     handleReaction: handlePostReaction,
     handleCommentReaction,
-    handleNewComment // ✅ NUEVO: Exportar la función
+    handleNewComment
   };
 };

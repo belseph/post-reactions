@@ -3,6 +3,7 @@ import { Send, Smile } from 'lucide-react';
 import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
 import EmojiPickerReact, { EmojiClickData } from 'emoji-picker-react';
+import { getUserAvatar } from '../../utils/avatarUtils'; // ✅ NUEVO: Importar avatar utils
 
 interface CommentFormProps {
   onSubmit: (content: string) => void;
@@ -60,11 +61,14 @@ const CommentForm: React.FC<CommentFormProps> = ({
     setShowEmojiPicker(false);
   };
 
+  // ✅ NUEVO: Usar avatar dinámico para el usuario actual
+  const currentUserAvatar = getUserAvatar('1'); // ID del usuario actual
+
   return (
     <div className="p-6 border-t border-white/20">
       <form onSubmit={handleSubmit} className="flex items-start space-x-3">
         <Avatar
-          src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=150"
+          src={currentUserAvatar} // ✅ NUEVO: Avatar dinámico
           alt="Tu avatar"
           size="md"
         />

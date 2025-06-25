@@ -4,13 +4,14 @@ import Button from '../ui/Button';
 import Avatar from '../ui/Avatar';
 import Badge from '../ui/Badge';
 import { AVAILABLE_TAGS, getTagLabel } from '../../constants/tags';
+import { getUserAvatar } from '../../utils/avatarUtils'; // ✅ NUEVO: Importar avatar utils
 
 interface CreatePostModalProps {
   onClose: () => void;
 }
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
-  const [title, setTitle] = useState(''); // ✅ NUEVO: Estado para el título
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [postType, setPostType] = useState<'normal' | 'mentoria' | 'colaboracion'>('normal');
@@ -25,15 +26,18 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim() && content.trim() && selectedTags.length > 0) { // ✅ ACTUALIZADO: Validar título
-      console.log('Crear post:', { title, content, selectedTags, postType }); // ✅ ACTUALIZADO: Incluir título
+    if (title.trim() && content.trim() && selectedTags.length > 0) {
+      console.log('Crear post:', { title, content, selectedTags, postType });
       onClose();
     }
   };
 
   const getCharacterCount = () => content.length;
   const maxCharacters = 2000;
-  const maxTitleCharacters = 100; // ✅ NUEVO: Límite para el título
+  const maxTitleCharacters = 100;
+
+  // ✅ NUEVO: Usar avatar dinámico para el usuario actual
+  const currentUserAvatar = getUserAvatar('1'); // ID del usuario actual
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -101,7 +105,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
             {/* User Info */}
             <div className="flex items-center space-x-3 mb-4">
               <Avatar
-                src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=150"
+                src={currentUserAvatar} // ✅ NUEVO: Avatar dinámico
                 alt="Tu avatar"
                 size="lg"
               />
@@ -111,7 +115,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
               </div>
             </div>
 
-            {/* ✅ NUEVO: Title Input */}
+            {/* Title Input */}
             <div className="mb-4">
               <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
                 Título del post
@@ -201,7 +205,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
                 <div className="bg-white rounded-lg p-4 border border-slate-100">
                   <div className="flex items-center space-x-3 mb-3">
                     <Avatar
-                      src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=150"
+                      src={currentUserAvatar} // ✅ NUEVO: Avatar dinámico en preview
                       alt="Tu avatar"
                       size="sm"
                     />
@@ -221,7 +225,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
                     </div>
                   )}
 
-                  {/* ✅ NUEVO: Preview del título */}
                   {title.trim() && (
                     <h2 className="text-lg font-bold text-slate-900 mb-2">
                       {title}
@@ -261,7 +264,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!title.trim() || !content.trim() || selectedTags.length === 0} // ✅ ACTUALIZADO: Validar título
+                  disabled={!title.trim() || !content.trim() || selectedTags.length === 0}
                   className={`${
                     title.trim() && content.trim() && selectedTags.length > 0
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
