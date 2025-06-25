@@ -8,7 +8,7 @@ interface PostContentProps {
 
 const PostContent: React.FC<PostContentProps> = ({ title, content, image }) => {
   return (
-    <div className="px-6 pb-4">
+    <div className="pb-4">
       {/* Título del post */}
       <div className="mb-4">
         <h2 className="text-xl font-bold text-white leading-tight">

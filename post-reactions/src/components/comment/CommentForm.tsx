@@ -6,8 +6,8 @@ import Button from '../ui/Button';
 interface CommentFormProps {
   onSubmit: (content: string) => void;
   placeholder?: string;
-  postId?: string; // ✅ NUEVO: Para identificar el post
-  parentCommentId?: string; // ✅ NUEVO: Para respuestas
+  postId?: string;
+  parentCommentId?: string;
 }
 
 const CommentForm: React.FC<CommentFormProps> = ({ 
@@ -35,7 +35,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
   };
 
   return (
-    <div className="p-6 border-t border-slate-100">
+    <div className="p-6 border-t border-white/20">
       <form onSubmit={handleSubmit} className="flex items-start space-x-3">
         <Avatar
           src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?w=150"
@@ -49,7 +49,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-slate-500 min-h-[80px] disabled:opacity-50"
+            className="w-full px-4 py-3 border border-white/30 rounded-xl resize-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 text-white"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -63,7 +63,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               variant="ghost"
               size="sm"
               icon={Smile}
-              className="text-slate-400 hover:text-slate-600 p-1"
+              className="text-white/60 hover:text-white/80 p-1"
               disabled={isSubmitting}
             />
             
@@ -74,6 +74,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               size="sm"
               variant={content.trim() && !isSubmitting ? 'primary' : 'secondary'}
               loading={isSubmitting}
+              className={content.trim() && !isSubmitting ? 'bg-white/20 hover:bg-white/30 text-white border-white/30' : ''}
             >
               {isSubmitting ? 'Enviando...' : 'Comentar'}
             </Button>

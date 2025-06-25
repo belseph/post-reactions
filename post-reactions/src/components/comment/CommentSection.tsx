@@ -7,7 +7,7 @@ interface CommentSectionProps {
   comments: Comment[];
   postId: string;
   onCommentReaction?: (commentId: string, reactionType: string) => void;
-  onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>; // ✅ NUEVO
+  onNewComment?: (postId: string, content: string, parentCommentId?: string) => Promise<void>;
   forceRenderKey?: number;
 }
 
@@ -15,7 +15,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   comments, 
   postId, 
   onCommentReaction,
-  onNewComment, // ✅ NUEVO
+  onNewComment,
   forceRenderKey
 }) => {
 
@@ -39,7 +39,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   });
 
   return (
-    <div className="border-t border-slate-100 bg-slate-50/30">
+    <div className="border-t border-white/20 bg-black/20 rounded-b-xl">
       {/* Comments List */}
       {comments.length > 0 && (
         <div className="px-6 py-4 space-y-4">
@@ -48,7 +48,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               key={`${comment.id}-${forceRenderKey || 0}`}
               comment={comment}
               onReaction={onCommentReaction}
-              onNewComment={onNewComment} // ✅ PASAR FUNCIÓN PARA RESPUESTAS
+              onNewComment={onNewComment}
               forceRenderKey={forceRenderKey}
             />
           ))}
