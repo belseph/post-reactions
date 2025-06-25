@@ -44,13 +44,13 @@ const CommentForm: React.FC<CommentFormProps> = ({
         />
         
         <div className="flex-1 relative">
-          {/* ✅ ARREGLADO: Contraste más sutil para el textarea */}
+          {/* ✅ ARREGLADO: Hover más sutil para el textarea */}
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 border border-white/30 rounded-xl resize-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/15 backdrop-blur-sm text-white"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl resize-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 placeholder-white/60 min-h-[80px] disabled:opacity-50 bg-white/10 backdrop-blur-sm text-white hover:bg-white/15 hover:border-white/30"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -64,7 +64,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
               variant="ghost"
               size="sm"
               icon={Smile}
-              className="text-white/60 hover:text-white/80 p-1"
+              className="text-white/60 hover:text-white/80 hover:bg-white/10 p-1 rounded-lg"
               disabled={isSubmitting}
             />
             

@@ -73,8 +73,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
         />
         
         <div className="flex-1 min-w-0">
-          {/* ✅ ARREGLADO: Contraste más sutil para el fondo del comentario */}
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/30">
+          {/* ✅ ARREGLADO: Hover más sutil para el fondo del comentario */}
+          <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/20 hover:bg-white/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-1">
               <div className="flex-1">
                 <h4 className="font-semibold text-sm text-white">{comment.author.name}</h4>
@@ -109,7 +109,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 size="sm"
                 onClick={() => setShowReplyForm(!showReplyForm)}
                 icon={Reply}
-                className="text-white/70 hover:text-purple-300 transition-colors font-medium"
+                className="text-white/70 hover:text-purple-300 hover:bg-purple-500/10 transition-colors font-medium px-2 py-1 rounded-lg"
               >
                 Responder
               </Button>
@@ -135,7 +135,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowReplies(true)}
-                  className="text-purple-300 hover:text-purple-200 text-sm font-medium"
+                  className="text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 text-sm font-medium px-2 py-1 rounded-lg"
                 >
                   Ver {comment.replies.length} respuesta{comment.replies.length > 1 ? 's' : ''}
                 </Button>
@@ -145,7 +145,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowReplies(false)}
-                    className="text-white/70 hover:text-white/90 text-sm font-medium"
+                    className="text-white/70 hover:text-white/90 hover:bg-white/10 text-sm font-medium px-2 py-1 rounded-lg"
                   >
                     Ocultar respuestas
                   </Button>

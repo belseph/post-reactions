@@ -39,8 +39,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   });
 
   return (
-    <div className="border-t border-white/20 bg-white/10 backdrop-blur-sm rounded-b-xl">
-      {/* ✅ ARREGLADO: Comments List con contraste más sutil */}
+    <div className="border-t border-white/20 bg-white/5 backdrop-blur-sm rounded-b-xl hover:bg-white/8 transition-all duration-300">
+      {/* ✅ ARREGLADO: Comments List con hover más sutil */}
       {comments.length > 0 && (
         <div className="px-6 py-4 space-y-4">
           {comments.map((comment) => (
