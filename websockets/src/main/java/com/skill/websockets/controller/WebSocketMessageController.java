@@ -36,6 +36,22 @@ public class WebSocketMessageController {
     }
 
     /**
+     * ✅ NUEVO: Notifica sobre la actualización de un comentario
+     */
+    public void notifyCommentUpdate(CommentDTO commentDTO) {
+        String destination = "/topic/comments/updated";
+        messagingTemplate.convertAndSend(destination, commentDTO);
+    }
+
+    /**
+     * ✅ NUEVO: Notifica sobre la eliminación de un comentario
+     */
+    public void notifyCommentDelete(Long commentId) {
+        String destination = "/topic/comments/deleted";
+        messagingTemplate.convertAndSend(destination, commentId.toString());
+    }
+
+    /**
      * Notifica a los suscriptores sobre un cambio en las reacciones de un post o comentario.
      * CAMBIO IMPORTANTE: Ya no enviamos userReaction específica, solo los conteos generales.
      * Cada cliente deberá consultar su propia reacción individualmente.

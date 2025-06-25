@@ -45,6 +45,27 @@ public class CommentController {
         }
     }
 
+    // ✅ NUEVO: PUT - Actualizar un comentario existente
+    @PutMapping("/{id}")
+    public ResponseEntity<CommentDTO> updateComment(
+            @PathVariable Long id,
+            @RequestBody Comment commentDetails,
+            @RequestParam(value = "currentUserId", required = false) Long currentUserId) {
+        try {
+            Comment updatedComment = commentService.updateComment(id, commentDetails);
+            
+            // Convertir la entidad actualizada a DTO para la respuesta
+            CommentDTO updatedCommentDTO = commentService.getCommentById(updatedComment.getId(), currentUserId)
+                    .orElseThrow(() -> new RuntimeException("Error al recuperar el CommentDTO después de la actualización"));
+            
+            return ResponseEntity.ok(updatedCommentDTO);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // GET: Obtener comentarios de un post específico (ahora devuelve DTOs)
     // currentUserId es opcional para obtener la reacción del usuario y respuestas recursivas
     @GetMapping("/byPost/{postId}")

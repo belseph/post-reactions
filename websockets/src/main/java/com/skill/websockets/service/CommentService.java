@@ -126,6 +126,23 @@ public class CommentService {
         return savedComment;
     }
 
+    // ✅ NUEVO: Método para actualizar comentarios
+    public Comment updateComment(Long id, Comment commentDetails) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Comentario no encontrado con ID: " + id));
+
+        existingComment.setContenido(commentDetails.getContenido());
+        existingComment.setUltimaActualizacion(LocalDateTime.now());
+
+        Comment updatedComment = commentRepository.save(existingComment);
+
+        // ✅ NUEVO: Notificar actualización vía WebSocket
+        CommentDTO commentDTO = convertToDto(updatedComment, null);
+        webSocketMessageController.notifyCommentUpdate(commentDTO);
+
+        return updatedComment;
+    }
+
     public List<CommentDTO> getCommentsByPostId(Long postId, Long currentUserId) {
         List<Comment> topLevelComments = commentRepository.findByPost_IdAndParentCommentIsNullOrderByFechaComentarioAsc(postId);
         return topLevelComments.stream()
@@ -149,6 +166,10 @@ public class CommentService {
         if (!commentRepository.existsById(id)) {
             throw new EntityNotFoundException("Comentario no encontrado con ID: " + id);
         }
+        
+        // ✅ NUEVO: Notificar eliminación vía WebSocket antes de eliminar
+        webSocketMessageController.notifyCommentDelete(id);
+        
         commentRepository.deleteById(id);
     }
 }
