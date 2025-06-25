@@ -31,11 +31,18 @@ const PostsContainer: React.FC<PostsContainerProps> = ({ selectedTag, currentUse
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-white border-white/30 border-t-white" role="status">
-          <span className="visually-hidden">Cargando posts...</span>
+      <div className="text-center py-16">
+        <div className="flex flex-col items-center space-y-4">
+          {/* ✅ NUEVO: Loader elegante con múltiples círculos */}
+          <div className="flex space-x-2">
+            <div className="w-3 h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full animate-bounce"></div>
+            <div className="w-3 h-3 bg-gradient-to-r from-teal-400 to-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          </div>
+          
+          {/* ✅ NUEVO: Texto elegante sin animación */}
+          <p className="text-white/80 font-medium">Cargando posts...</p>
         </div>
-        <p className="mt-4 text-white">Cargando posts...</p>
       </div>
     );
   }
