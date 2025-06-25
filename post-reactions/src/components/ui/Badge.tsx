@@ -12,11 +12,11 @@ const Badge: React.FC<BadgeProps> = ({
   variant,
   className = ''
 }) => {
-  // ✅ ARREGLADO: Usar la función helper para obtener el color REAL
+  // ✅ ARREGLADO: Usar la función helper para obtener el color REAL con degradados
   const colorClasses = variant ? getTagColor(variant) : getTagColor('default');
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 ${colorClasses} ${className}`}>
+    <span className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${colorClasses} ${className}`}>
       {children}
     </span>
   );

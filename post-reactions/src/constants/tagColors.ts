@@ -1,36 +1,36 @@
 export const tagColors: Record<string, string> = {
-  // 🔵 Tecnología - Azul (innovación, digital)
-  'Tecnología': 'bg-blue-100 text-blue-800 border-blue-200',
+  // 🔵 Tecnología - Azul degradado
+  'Tecnología': 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-blue-300',
   
-  // 🟡 Negocios - Amarillo/Naranja (crecimiento, dinero)
-  'Negocios y Emprendimiento': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  // 🟡 Negocios - Amarillo/Naranja degradado
+  'Negocios y Emprendimiento': 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-yellow-300',
   
-  // 🟣 Arte - Púrpura (creatividad, imaginación)
-  'Arte y Creatividad': 'bg-violet-100 text-violet-800 border-violet-200',
+  // 🟣 Arte - Púrpura degradado
+  'Arte y Creatividad': 'bg-gradient-to-r from-violet-500 to-purple-500 text-white border-violet-300',
   
-  // 🟠 Ciencia - Índigo/Púrpura (conocimiento, educación)
-  'Ciencia y Educación': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+  // 🟠 Ciencia - Índigo/Púrpura degradado
+  'Ciencia y Educación': 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-indigo-300',
   
-  // 🟢 Idiomas - Esmeralda/Verde azulado (diversidad, cultura)
-  'Idiomas y Cultura': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  // 🟢 Idiomas - Esmeralda/Verde azulado degradado
+  'Idiomas y Cultura': 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300',
   
-  // 🩷 Salud - Rosa (bienestar, vida)
-  'Salud y Bienestar': 'bg-pink-100 text-pink-800 border-pink-200',
+  // 🩷 Salud - Rosa degradado
+  'Salud y Bienestar': 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-300',
   
-  // 🔴 Deportes - Naranja/Rojo (energía, competencia)
-  'Deportes': 'bg-orange-100 text-orange-800 border-orange-200',
+  // 🔴 Deportes - Naranja/Rojo degradado
+  'Deportes': 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-300',
   
-  // 🟢 Medio ambiente - Verde (naturaleza, sostenibilidad)
-  'Medio ambiente y Sostenibilidad': 'bg-green-100 text-green-800 border-green-200',
+  // 🟢 Medio ambiente - Verde degradado
+  'Medio ambiente y Sostenibilidad': 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-300',
   
-  // 🟣 Desarrollo Personal - Púrpura oscuro (crecimiento personal)
-  'Desarrollo Personal': 'bg-purple-100 text-purple-800 border-purple-200',
+  // 🟣 Desarrollo Personal - Púrpura oscuro degradado
+  'Desarrollo Personal': 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-300',
   
-  // 🟣 Gaming - Púrpura/Rosa (diversión, entretenimiento)
-  'Video Juegos y Entretenimiento': 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200',
+  // 🟣 Gaming - Púrpura/Rosa degradado
+  'Video Juegos y Entretenimiento': 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-300',
   
   // Color por defecto para etiquetas no definidas
-  'default': 'bg-slate-100 text-slate-700 border-slate-200'
+  'default': 'bg-gradient-to-r from-slate-500 to-gray-500 text-white border-slate-300'
 };
 
 // Función helper para obtener el color de una etiqueta
