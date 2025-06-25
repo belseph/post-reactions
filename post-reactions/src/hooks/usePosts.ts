@@ -175,6 +175,62 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
     setPosts(prevPosts => addCommentToPosts(prevPosts, commentWithAvatar));
   }, [ensureUserHasAvatar]);
 
+  // ✅ NUEVO: Manejador para comentarios editados desde WebSocket
+  const handleCommentUpdateFromWS = useCallback((updatedComment: Comment) => {
+    console.log('📡 Comentario actualizado recibido vía WebSocket:', updatedComment);
+    
+    const commentWithAvatar = {
+      ...updatedComment,
+      author: ensureUserHasAvatar(updatedComment.author)
+    };
+    
+    setPosts(prevPosts => {
+      return prevPosts.map(post => {
+        const updateCommentsRecursive = (comments: Comment[]): Comment[] => {
+          return comments.map(comment => {
+            if (comment.id === commentWithAvatar.id) {
+              return commentWithAvatar;
+            } else if (comment.replies && comment.replies.length > 0) {
+              return {
+                ...comment,
+                replies: updateCommentsRecursive(comment.replies)
+              };
+            }
+            return comment;
+          });
+        };
+        
+        return {
+          ...post,
+          comments: updateCommentsRecursive(post.comments)
+        };
+      });
+    });
+  }, [ensureUserHasAvatar]);
+
+  // ✅ NUEVO: Manejador para comentarios eliminados desde WebSocket
+  const handleCommentDeleteFromWS = useCallback((deletedCommentId: string) => {
+    console.log('📡 Comentario eliminado recibido vía WebSocket:', deletedCommentId);
+    
+    setPosts(prevPosts => {
+      return prevPosts.map(post => {
+        const removeCommentsRecursive = (comments: Comment[]): Comment[] => {
+          return comments
+            .filter(comment => comment.id !== deletedCommentId)
+            .map(comment => ({
+              ...comment,
+              replies: comment.replies ? removeCommentsRecursive(comment.replies) : []
+            }));
+        };
+        
+        return {
+          ...post,
+          comments: removeCommentsRecursive(post.comments)
+        };
+      });
+    });
+  }, []);
+
   // Manejador para cambios de reacciones
   const handleReactionChange = useCallback(async (reactionNotification: NotificationReaction) => {
     console.log('🔄 Procesando notificación de reacción:', reactionNotification);
@@ -241,10 +297,12 @@ export const usePosts = ({ currentUserId }: UsePostsOptions): UsePostsReturn => 
     }
   }, [currentUserId]);
 
-  // Configurar WebSocket
+  // ✅ ACTUALIZADO: Configurar WebSocket con nuevos handlers
   useWebSocket({
     onNewComment: handleNewCommentFromWS,
-    onReactionChange: handleReactionChange
+    onReactionChange: handleReactionChange,
+    onCommentUpdate: handleCommentUpdateFromWS, // ✅ NUEVO
+    onCommentDelete: handleCommentDeleteFromWS   // ✅ NUEVO
   });
 
   // Cargar posts al montar el componente

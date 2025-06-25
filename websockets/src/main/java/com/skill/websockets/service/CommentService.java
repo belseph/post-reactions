@@ -167,7 +167,7 @@ public class CommentService {
             throw new EntityNotFoundException("Comentario no encontrado con ID: " + id);
         }
         
-        // ✅ NUEVO: Notificar eliminación vía WebSocket antes de eliminar
+        // ✅ ARREGLADO: Notificar eliminación vía WebSocket ANTES de eliminar
         webSocketMessageController.notifyCommentDelete(id);
         
         commentRepository.deleteById(id);
