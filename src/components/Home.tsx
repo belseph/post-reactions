@@ -10,68 +10,6 @@ import { filterPosts, getAllTags } from "../utils/post";
 import { useNavigate } from "react-router-dom";
 import { usePosts } from './Post/hooks/usePosts';
 
-// ✅ NUEVO: Componente de loader elegante
-const ElegantLoader = () => {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 space-y-8">
-      {/* ✅ Animación principal con círculos pulsantes */}
-      <div className="relative">
-        {/* Círculo exterior */}
-        <div className="w-20 h-20 border-4 border-white/20 rounded-full animate-pulse"></div>
-        
-        {/* Círculo medio */}
-        <div className="absolute top-2 left-2 w-16 h-16 border-4 border-emerald-400/60 rounded-full animate-spin"></div>
-        
-        {/* Círculo interior */}
-        <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-r from-emerald-400 to-purple-500 rounded-full animate-bounce"></div>
-        
-        {/* Punto central */}
-        <div className="absolute top-8 left-8 w-4 h-4 bg-white rounded-full animate-ping"></div>
-      </div>
-
-      {/* ✅ Texto elegante con gradiente */}
-      <div className="text-center space-y-2">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-white via-emerald-200 to-purple-200 bg-clip-text text-transparent">
-          Cargando posts
-        </h3>
-        <p className="text-white/70 text-sm">
-          Preparando el contenido más reciente para ti...
-        </p>
-      </div>
-
-      {/* ✅ Barras de progreso animadas */}
-      <div className="flex space-x-1">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="w-2 h-8 bg-gradient-to-t from-emerald-500 to-purple-500 rounded-full animate-pulse"
-            style={{
-              animationDelay: `${i * 0.1}s`,
-              animationDuration: '1s'
-            }}
-          ></div>
-        ))}
-      </div>
-
-      {/* ✅ Partículas flotantes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-white/20 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          ></div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 export const Home = ({ selectedTag, currentUserId }) => {
   const { 
       posts, 
@@ -200,61 +138,67 @@ export const Home = ({ selectedTag, currentUserId }) => {
               </div>
             )}
 
-            {/* ✅ ARREGLADO: Estados de carga y error mejorados */}
-            {loading ? (
-              <ElegantLoader />
-            ) : error ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-8 w-8 text-red-400" />
-                </div>
-                <h3 className="text-lg font-medium text-white mb-2">Error al cargar</h3>
-                <p className="text-white/70 max-w-sm mx-auto mb-4">{error}</p>
-                <button 
-                  onClick={fetchPosts} 
-                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
-                >
-                  Reintentar
-                </button>
-              </div>
-            ) : (
-              /* Posts */
-              <div className="space-y-6">
-                {filteredPosts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4">
-                      <TrendingUp className="h-8 w-8 text-white/60" />
-                    </div>
-                    <h3 className="text-lg font-medium text-white mb-2">No hay publicaciones</h3>
-                    <p className="text-white/70 max-w-sm mx-auto">
-                      {searchTerm || selectedTags.length > 0 
-                        ? 'No se encontraron publicaciones que coincidan con tus filtros de búsqueda.'
-                        : 'Sé el primero en compartir algo increíble con la comunidad.'
-                      }
-                    </p>
-                    {(!searchTerm && selectedTags.length === 0) && (
-                      <button 
-                        onClick={() => router('/add-post')} 
-                        className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
-                      >
-                        Crear primer post
-                      </button>
-                    )}
+            {/* Posts */}
+            <div className="space-y-6">
+              {loading ? (
+                // ✅ LOADER SIMPLE Y ELEGANTE
+                <div className="text-center py-16">
+                  <div className="flex flex-col items-center space-y-4">
+                    {/* Spinner simple con gradiente */}
+                    <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    
+                    {/* Texto simple */}
+                    <p className="text-white/80 font-medium">Cargando posts...</p>
                   </div>
-                ) : (
-                  filteredPosts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      currentUserId={currentUserId}
-                      onReaction={handleReaction}
-                      onCommentReaction={handleCommentReaction}
-                      onNewComment={handleNewComment}
-                    />
-                  ))
-                )}
-              </div>
-            )}
+                </div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="h-8 w-8 text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Error al cargar</h3>
+                  <p className="text-white/70 max-w-sm mx-auto mb-4">{error}</p>
+                  <button 
+                    onClick={fetchPosts} 
+                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              ) : filteredPosts.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="h-8 w-8 text-white/60" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">No hay publicaciones</h3>
+                  <p className="text-white/70 max-w-sm mx-auto">
+                    {searchTerm || selectedTags.length > 0 
+                      ? 'No se encontraron publicaciones que coincidan con tus filtros de búsqueda.'
+                      : 'Sé el primero en compartir algo increíble con la comunidad.'
+                    }
+                  </p>
+                  {(!searchTerm && selectedTags.length === 0) && (
+                    <button 
+                      onClick={() => router('/add-post')} 
+                      className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                    >
+                      Crear primer post
+                    </button>
+                  )}
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onReaction={handleReaction}
+                    onCommentReaction={handleCommentReaction}
+                    onNewComment={handleNewComment}
+                  />
+                ))
+              )}
+            </div>
           </div>
         </div>
       </main>
