@@ -30,14 +30,14 @@ const PostActions: React.FC<PostActionsProps> = ({
           onReaction={onReaction}
         />
         
-        <Button
-          variant="ghost"
+        {/* ✅ ARREGLADO: Botón comentar sin focus outline y sin estado seleccionado */}
+        <button
           onClick={onToggleComments}
-          icon={MessageCircle}
-          className="text-white/70 hover:text-white/90 hover:bg-white/10 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 px-3 py-2 rounded-lg"
+          className="flex items-center space-x-2 text-white/70 hover:text-white/90 hover:bg-white/10 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 px-3 py-2 rounded-lg focus:outline-none"
         >
-          Comentar
-        </Button>
+          <MessageCircle className="w-5 h-5" />
+          <span className="text-sm font-medium">Comentar</span>
+        </button>
       </div>
 
       {/* ✅ ARREGLADO: Lado derecho - Compartir y Guardar con hovers coherentes */}
@@ -46,14 +46,14 @@ const PostActions: React.FC<PostActionsProps> = ({
           variant="ghost"
           size="sm"
           icon={Share2}
-          className="text-white/70 hover:text-white/90 hover:bg-white/10 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 p-2 rounded-lg"
+          className="text-white/70 hover:text-white/90 hover:bg-white/10 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 p-2 rounded-lg focus:outline-none"
         />
         <Button
           variant="ghost"
           size="sm"
           icon={Bookmark}
           onClick={() => setIsBookmarked(!isBookmarked)}
-          className={`p-2 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 rounded-lg ${
+          className={`p-2 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200 rounded-lg focus:outline-none ${
             isBookmarked 
               ? 'text-blue-300 bg-blue-500/20 hover:bg-blue-500/30' 
               : 'text-white/70 hover:text-white/90 hover:bg-white/10'
